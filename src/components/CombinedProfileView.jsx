@@ -25,6 +25,16 @@ export const CombinedProfileView = () => {
     removeFriend,
   } = useApp();
 
+  if (!currentUser) {
+    return (
+      <div className="pb-24 pt-4 px-4 space-y-6">
+        <div className="pt-6 text-center">
+          <p className="text-slate-600 dark:text-slate-400">Wird geladen...</p>
+        </div>
+      </div>
+    );
+  }
+
   const handleAddDrink = (drinkData) => {
     const alcohol = calculateAlcohol(drinkData.volume, drinkData.abv);
     const beerFactor = drinkData.beerFactor !== undefined ? drinkData.beerFactor : 0;
@@ -61,6 +71,17 @@ export const CombinedProfileView = () => {
   if (selectedPersonId) {
     const isCurrentUser = selectedPersonId === currentUser.id;
     const person = isCurrentUser ? currentUser : friends.find(f => f.id === selectedPersonId);
+    
+    if (!person) {
+      return (
+        <div className="pb-24 pt-4 px-4 space-y-6">
+          <div className="pt-6 text-center">
+            <p className="text-slate-600 dark:text-slate-400">Person nicht gefunden</p>
+          </div>
+        </div>
+      );
+    }
+    
     const drinks = isCurrentUser 
       ? getDrinksForDate() 
       : getFriendDrinksForDate(selectedPersonId);
