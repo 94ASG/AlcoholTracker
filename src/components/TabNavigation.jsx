@@ -2,8 +2,7 @@ import React from 'react';
 
 export const TabNavigation = ({ activeTab, onTabChange }) => {
   const tabs = [
-    { id: 'profile', label: 'Profil', icon: '👤' },
-    { id: 'friends', label: 'Freunde', icon: '👥' },
+    { id: 'profile', label: 'Personen', icon: '👥' },
     { id: 'stats', label: 'Statistiken', icon: '📊' },
   ];
 

@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { storageService } from '../utils/storage';
-import { getDateKey } from '../utils/drinks';
+import { getDateKey, getWeekDates } from '../utils/drinks';
 
 const AppContext = createContext();
 
@@ -152,6 +152,50 @@ export const AppProvider = ({ children }) => {
     return stats;
   };
 
+  const getWeeklyAlcohol = () => {
+    const weeklyStats = getWeeklyStats();
+    return Object.values(weeklyStats).reduce((sum, val) => sum + val, 0);
+  };
+
+  const getWeeklyBeerLiters = () => {
+    const today = new Date();
+    let total = 0;
+    for (let i = 0; i < 7; i++) {
+      const date = new Date(today);
+      date.setDate(today.getDate() - i);
+      const dateKey = getDateKey(date);
+      const dayDrinks = getDrinksForDate(dateKey);
+      total += dayDrinks.reduce((sum, drink) => sum + (drink.beerLiters || 0), 0);
+    }
+    return total;
+  };
+
+  const getFriendWeeklyAlcohol = (friendId) => {
+    const today = new Date();
+    let total = 0;
+    for (let i = 0; i < 7; i++) {
+      const date = new Date(today);
+      date.setDate(today.getDate() - i);
+      const dateKey = getDateKey(date);
+      const friendDrinks = getFriendDrinksForDate(friendId, dateKey);
+      total += friendDrinks.reduce((sum, drink) => sum + (drink.alcohol || 0), 0);
+    }
+    return total;
+  };
+
+  const getFriendWeeklyBeerLiters = (friendId) => {
+    const today = new Date();
+    let total = 0;
+    for (let i = 0; i < 7; i++) {
+      const date = new Date(today);
+      date.setDate(today.getDate() - i);
+      const dateKey = getDateKey(date);
+      const friendDrinks = getFriendDrinksForDate(friendId, dateKey);
+      total += friendDrinks.reduce((sum, drink) => sum + (drink.beerLiters || 0), 0);
+    }
+    return total;
+  };
+
   const getLeaderboard = () => {
     const today = getDateKey();
     const board = [
@@ -161,6 +205,8 @@ export const AppProvider = ({ children }) => {
         avatar: currentUser.avatar,
         alcohol: getTodayAlcohol(),
         beerLiters: getTodayBeerLiters(),
+        weeklyAlcohol: getWeeklyAlcohol(),
+        weeklyBeerLiters: getWeeklyBeerLiters(),
       },
     ];
 
@@ -171,6 +217,8 @@ export const AppProvider = ({ children }) => {
         avatar: friend.avatar,
         alcohol: getFriendTodayAlcohol(friend.id),
         beerLiters: getFriendTodayBeerLiters(friend.id),
+        weeklyAlcohol: getFriendWeeklyAlcohol(friend.id),
+        weeklyBeerLiters: getFriendWeeklyBeerLiters(friend.id),
       });
     });
 
@@ -190,6 +238,10 @@ export const AppProvider = ({ children }) => {
         getTodayBeerLiters,
         getWeeklyStats,
         getMonthlyStats,
+        getWeeklyAlcohol,
+        getWeeklyBeerLiters,
+        getFriendWeeklyAlcohol,
+        getFriendWeeklyBeerLiters,
         friends,
         addFriend,
         removeFriend,
