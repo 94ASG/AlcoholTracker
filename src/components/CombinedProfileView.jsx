@@ -10,6 +10,7 @@ export const CombinedProfileView = () => {
   const [isAddFriendOpen, setIsAddFriendOpen] = useState(false);
   const [selectedPersonId, setSelectedPersonId] = useState(null);
   const [addDrinkFor, setAddDrinkFor] = useState(null);
+  const [deleteConfirmId, setDeleteConfirmId] = useState(null);
   const { 
     currentUser, 
     friends, 
@@ -49,7 +50,7 @@ export const CombinedProfileView = () => {
         alcohol,
         beerLiters,
       });
-    } else {
+    } else if (addDrinkFor) {
       addDrinkToFriend(addDrinkFor, {
         name: drinkData.name,
         icon: drinkData.icon,
@@ -66,6 +67,11 @@ export const CombinedProfileView = () => {
   const handleAddFriend = (friendData) => {
     addFriend(friendData);
     setIsAddFriendOpen(false);
+  };
+
+  const handleDeleteFriend = (friendId) => {
+    removeFriend(friendId);
+    setDeleteConfirmId(null);
   };
 
   if (selectedPersonId) {
@@ -169,7 +175,7 @@ export const CombinedProfileView = () => {
 
             <button
               onClick={() => {
-                setAddDrinkFor(person.id);
+                setAddDrinkFor(person.isCurrentUser ? 'self' : person.id);
                 setIsAddDrinkOpen(true);
               }}
               className="p-3 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors text-blue-600 dark:text-blue-400 font-bold text-lg ml-2"
@@ -179,13 +185,34 @@ export const CombinedProfileView = () => {
             </button>
 
             {!person.isCurrentUser && (
-              <button
-                onClick={() => removeFriend(person.id)}
-                className="p-2 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors text-red-600 dark:text-red-400 ml-2"
-                aria-label="Remove friend"
-              >
-                ✕
-              </button>
+              <div className="relative ml-2">
+                {deleteConfirmId === person.id ? (
+                  <div className="absolute right-0 top-full mt-2 bg-red-500 text-white rounded-lg p-3 whitespace-nowrap z-50 text-sm">
+                    <div className="mb-2 font-semibold">Wirklich löschen?</div>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => handleDeleteFriend(person.id)}
+                        className="px-3 py-1 bg-red-600 hover:bg-red-700 rounded font-bold"
+                      >
+                        Ja
+                      </button>
+                      <button
+                        onClick={() => setDeleteConfirmId(null)}
+                        className="px-3 py-1 bg-red-400 hover:bg-red-500 rounded"
+                      >
+                        Nein
+                      </button>
+                    </div>
+                  </div>
+                ) : null}
+                <button
+                  onClick={() => setDeleteConfirmId(person.id)}
+                  className="p-2 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors text-red-600 dark:text-red-400"
+                  aria-label="Remove friend"
+                >
+                  ✕
+                </button>
+              </div>
             )}
           </div>
         ))}
