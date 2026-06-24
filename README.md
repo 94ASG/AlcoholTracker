@@ -1,5 +1,8 @@
 # AlcoholTracker 🍺
 
+*100% vibe-coded*
+
+
 Eine moderne, mobile-first Web-App zum Tracking des Alkoholkonsums für dich und deine Freunde. Vollständig lokal im Browser mit localStorage.
 
 ## Features
