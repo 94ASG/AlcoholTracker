@@ -1,6 +1,6 @@
 import React from 'react';
 import { useApp } from '../context/AppContext';
-import { formatAlcohol, getWeekDates, getMonthDates, getDateKey } from '../utils/drinks';
+import { formatAlcohol, formatBeerLiters, getWeekDates, getMonthDates, getDateKey } from '../utils/drinks';
 
 export const StatsView = () => {
   const { getWeeklyStats, getMonthlyStats, getLeaderboard } = useApp();
@@ -27,11 +27,12 @@ export const StatsView = () => {
   return (
     <div className="pb-24 pt-4 px-4 space-y-6">
       <div className="pt-6">
-        <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-6">Statistiken</h2>
+        <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-1">Statistiken</h2>
+        <p className="text-sm text-slate-600 dark:text-slate-400">Deine Verbrauchsübersicht</p>
       </div>
 
       <div className="card">
-        <h3 className="font-bold text-slate-900 dark:text-white mb-4">Wöchentlicher Überblick</h3>
+        <h3 className="font-bold text-slate-900 dark:text-white mb-4 text-sm">WÖCHENTLICHER ÜBERBLICK</h3>
         <div className="flex items-end gap-1 h-32 mb-4 pb-2 border-b border-slate-200 dark:border-slate-800">
           {weekDates.map(date => {
             const value = weeklyStats[date] || 0;
@@ -50,18 +51,18 @@ export const StatsView = () => {
         </div>
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <div className="text-sm text-slate-600 dark:text-slate-400">Summe</div>
-            <div className="text-xl font-bold text-slate-900 dark:text-white">{(weekTotal * 1000).toFixed(0)}ml</div>
+            <div className="text-xs text-slate-600 dark:text-slate-400 font-medium mb-1">SUMME</div>
+            <div className="text-xl font-bold text-slate-900 dark:text-white">{(weekTotal * 1000).toFixed(0)}<span className="text-xs">ml</span></div>
           </div>
           <div>
-            <div className="text-sm text-slate-600 dark:text-slate-400">Durchschnitt</div>
-            <div className="text-xl font-bold text-slate-900 dark:text-white">{(weekAverage * 1000).toFixed(0)}ml</div>
+            <div className="text-xs text-slate-600 dark:text-slate-400 font-medium mb-1">DURCHSCHNITT</div>
+            <div className="text-xl font-bold text-slate-900 dark:text-white">{(weekAverage * 1000).toFixed(0)}<span className="text-xs">ml</span></div>
           </div>
         </div>
       </div>
 
       <div className="card">
-        <h3 className="font-bold text-slate-900 dark:text-white mb-4">Monatlicher Überblick</h3>
+        <h3 className="font-bold text-slate-900 dark:text-white mb-4 text-sm">MONATLICHER ÜBERBLICK</h3>
         <div className="flex items-end gap-0.5 h-24 mb-4 pb-2 border-b border-slate-200 dark:border-slate-800">
           {monthDates.map(date => {
             const value = monthlyStats[date] || 0;
@@ -78,18 +79,18 @@ export const StatsView = () => {
         </div>
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <div className="text-sm text-slate-600 dark:text-slate-400">Summe</div>
-            <div className="text-xl font-bold text-slate-900 dark:text-white">{(monthTotal * 1000).toFixed(0)}ml</div>
+            <div className="text-xs text-slate-600 dark:text-slate-400 font-medium mb-1">SUMME</div>
+            <div className="text-xl font-bold text-slate-900 dark:text-white">{(monthTotal * 1000).toFixed(0)}<span className="text-xs">ml</span></div>
           </div>
           <div>
-            <div className="text-sm text-slate-600 dark:text-slate-400">Durchschnitt</div>
-            <div className="text-xl font-bold text-slate-900 dark:text-white">{(monthAverage * 1000).toFixed(0)}ml</div>
+            <div className="text-xs text-slate-600 dark:text-slate-400 font-medium mb-1">DURCHSCHNITT</div>
+            <div className="text-xl font-bold text-slate-900 dark:text-white">{(monthAverage * 1000).toFixed(0)}<span className="text-xs">ml</span></div>
           </div>
         </div>
       </div>
 
       <div className="card">
-        <h3 className="font-bold text-slate-900 dark:text-white mb-4">🏆 Leaderboard (Heute)</h3>
+        <h3 className="font-bold text-slate-900 dark:text-white mb-4 text-sm">🏆 LEADERBOARD (HEUTE)</h3>
         <div className="space-y-2">
           {leaderboard.map((person, index) => (
             <div
@@ -97,14 +98,15 @@ export const StatsView = () => {
               className="flex items-center justify-between p-3 bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700"
             >
               <div className="flex items-center gap-3 flex-1">
-                <span className="font-bold text-lg text-slate-600 dark:text-slate-400 w-6">{index + 1}</span>
-                <span className="text-2xl">{person.avatar}</span>
-                <div className="flex-1">
-                  <div className="font-medium text-slate-900 dark:text-white">{person.name}</div>
+                <span className="font-bold text-lg text-slate-600 dark:text-slate-400 w-6 text-center">{index + 1}</span>
+                <span className="text-3xl">{person.avatar}</span>
+                <div className="flex-1 text-left">
+                  <div className="font-medium text-slate-900 dark:text-white text-sm">{person.name}</div>
+                  <div className="text-xs text-slate-600 dark:text-slate-400">{formatBeerLiters(person.beerLiters)}L Bier</div>
                 </div>
               </div>
               <div className="text-right">
-                <div className="font-bold text-slate-900 dark:text-white">{formatAlcohol(person.alcohol)}ml</div>
+                <div className="font-bold text-slate-900 dark:text-white">{formatAlcohol(person.alcohol)}<span className="text-xs">ml</span></div>
               </div>
             </div>
           ))}

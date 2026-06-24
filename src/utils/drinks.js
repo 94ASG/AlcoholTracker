@@ -5,6 +5,15 @@ export const DRINKS_DB = {
     defaultAbv: 5,
     icon: '🍺',
     volume: 500,
+    beerFactor: 1,
+  },
+  radler: {
+    name: 'Radler',
+    category: 'Beer',
+    defaultAbv: 2.5,
+    icon: '🍺',
+    volume: 500,
+    beerFactor: 0.5,
   },
   wine: {
     name: 'Wein',
@@ -12,6 +21,7 @@ export const DRINKS_DB = {
     defaultAbv: 12,
     icon: '🍷',
     volume: 150,
+    beerFactor: 0,
   },
   vodka: {
     name: 'Vodka',
@@ -19,6 +29,7 @@ export const DRINKS_DB = {
     defaultAbv: 40,
     icon: '🥃',
     volume: 50,
+    beerFactor: 0,
   },
   whiskey: {
     name: 'Whiskey',
@@ -26,6 +37,7 @@ export const DRINKS_DB = {
     defaultAbv: 40,
     icon: '🥃',
     volume: 50,
+    beerFactor: 0,
   },
   rum: {
     name: 'Rum',
@@ -33,6 +45,7 @@ export const DRINKS_DB = {
     defaultAbv: 40,
     icon: '🥃',
     volume: 50,
+    beerFactor: 0,
   },
   gin: {
     name: 'Gin',
@@ -40,6 +53,7 @@ export const DRINKS_DB = {
     defaultAbv: 40,
     icon: '🥃',
     volume: 50,
+    beerFactor: 0,
   },
   prosecco: {
     name: 'Prosecco',
@@ -47,6 +61,7 @@ export const DRINKS_DB = {
     defaultAbv: 11,
     icon: '🍾',
     volume: 150,
+    beerFactor: 0,
   },
   champagne: {
     name: 'Champagne',
@@ -54,6 +69,7 @@ export const DRINKS_DB = {
     defaultAbv: 12,
     icon: '🍾',
     volume: 150,
+    beerFactor: 0,
   },
   cider: {
     name: 'Apfelwein',
@@ -61,6 +77,7 @@ export const DRINKS_DB = {
     defaultAbv: 5.5,
     icon: '🍎',
     volume: 500,
+    beerFactor: 0,
   },
   cocktail: {
     name: 'Cocktail',
@@ -68,6 +85,7 @@ export const DRINKS_DB = {
     defaultAbv: 15,
     icon: '🍹',
     volume: 250,
+    beerFactor: 0,
   },
 };
 
@@ -75,8 +93,16 @@ export const calculateAlcohol = (volumeMl, abvPercent) => {
   return (volumeMl * (abvPercent / 100)) / 1000;
 };
 
+export const calculateBeerLiters = (volumeMl, beerFactor) => {
+  return (volumeMl * beerFactor) / 1000;
+};
+
 export const formatAlcohol = (liters) => {
   return (liters * 1000).toFixed(0);
+};
+
+export const formatBeerLiters = (liters) => {
+  return liters.toFixed(2);
 };
 
 export const getDateKey = (date = new Date()) => {
@@ -109,3 +135,4 @@ export const getMonthDates = (date = new Date()) => {
   }
   return dates;
 };
+

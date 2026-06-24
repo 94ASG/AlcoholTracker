@@ -66,6 +66,25 @@ export const AppProvider = ({ children }) => {
     setFriends(updated);
   };
 
+  const addDrinkToFriend = (friendId, drink) => {
+    const today = getDateKey();
+    const updated = storageService.addDrinkToFriend(friendId, today, drink);
+    setFriends(updated);
+  };
+
+  const removeDrinkFromFriend = (friendId, drinkId) => {
+    const today = getDateKey();
+    const updated = storageService.removeDrinkFromFriend(friendId, today, drinkId);
+    setFriends(updated);
+  };
+
+  const getFriendDrinksForDate = (friendId, date) => {
+    const friend = friends.find(f => f.id === friendId);
+    if (!friend || !friend.drinks) return [];
+    const dateKey = typeof date === 'string' ? date : getDateKey(date);
+    return friend.drinks[dateKey] || [];
+  };
+
   const setTheme = (newTheme) => {
     setThemeState(newTheme);
     storageService.setTheme(newTheme);
@@ -86,6 +105,24 @@ export const AppProvider = ({ children }) => {
     const today = getDateKey();
     const todayDrinks = getDrinksForDate(today);
     return todayDrinks.reduce((sum, drink) => sum + (drink.alcohol || 0), 0);
+  };
+
+  const getTodayBeerLiters = () => {
+    const today = getDateKey();
+    const todayDrinks = getDrinksForDate(today);
+    return todayDrinks.reduce((sum, drink) => sum + (drink.beerLiters || 0), 0);
+  };
+
+  const getFriendTodayAlcohol = (friendId) => {
+    const today = getDateKey();
+    const friendDrinks = getFriendDrinksForDate(friendId, today);
+    return friendDrinks.reduce((sum, drink) => sum + (drink.alcohol || 0), 0);
+  };
+
+  const getFriendTodayBeerLiters = (friendId) => {
+    const today = getDateKey();
+    const friendDrinks = getFriendDrinksForDate(friendId, today);
+    return friendDrinks.reduce((sum, drink) => sum + (drink.beerLiters || 0), 0);
   };
 
   const getWeeklyStats = () => {
@@ -123,6 +160,7 @@ export const AppProvider = ({ children }) => {
         name: currentUser.name,
         avatar: currentUser.avatar,
         alcohol: getTodayAlcohol(),
+        beerLiters: getTodayBeerLiters(),
       },
     ];
 
@@ -131,7 +169,8 @@ export const AppProvider = ({ children }) => {
         id: friend.id,
         name: friend.name,
         avatar: friend.avatar,
-        alcohol: 0,
+        alcohol: getFriendTodayAlcohol(friend.id),
+        beerLiters: getFriendTodayBeerLiters(friend.id),
       });
     });
 
@@ -148,11 +187,17 @@ export const AppProvider = ({ children }) => {
         removeDrink,
         getDrinksForDate,
         getTodayAlcohol,
+        getTodayBeerLiters,
         getWeeklyStats,
         getMonthlyStats,
         friends,
         addFriend,
         removeFriend,
+        addDrinkToFriend,
+        removeDrinkFromFriend,
+        getFriendDrinksForDate,
+        getFriendTodayAlcohol,
+        getFriendTodayBeerLiters,
         theme,
         setTheme,
         getLeaderboard,
@@ -170,3 +215,4 @@ export const useApp = () => {
   }
   return context;
 };
+

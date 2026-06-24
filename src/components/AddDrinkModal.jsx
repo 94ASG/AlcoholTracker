@@ -8,6 +8,7 @@ export const AddDrinkModal = ({ onClose, onAdd }) => {
     volume: 500,
     abv: 5,
     icon: '🍹',
+    beerFactor: 0,
   });
 
   const handleQuickAdd = (drinkKey) => {
@@ -17,6 +18,7 @@ export const AddDrinkModal = ({ onClose, onAdd }) => {
       icon: drink.icon,
       volume: drink.volume,
       abv: drink.defaultAbv,
+      beerFactor: drink.beerFactor || 0,
     });
   };
 
@@ -124,6 +126,21 @@ export const AddDrinkModal = ({ onClose, onAdd }) => {
 
             <div>
               <label className="block text-sm font-medium text-slate-900 dark:text-white mb-1">
+                Bier-Faktor
+              </label>
+              <select
+                value={customDrink.beerFactor}
+                onChange={(e) => setCustomDrink({ ...customDrink, beerFactor: parseFloat(e.target.value) })}
+                className="input-field"
+              >
+                <option value={0}>Keine Bier (Spirituosen, Wein)</option>
+                <option value={0.5}>Halbes Bier (Radler)</option>
+                <option value={1}>Volles Bier</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-slate-900 dark:text-white mb-1">
                 Emoji
               </label>
               <input
@@ -147,3 +164,4 @@ export const AddDrinkModal = ({ onClose, onAdd }) => {
     </div>
   );
 };
+

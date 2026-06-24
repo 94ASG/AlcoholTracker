@@ -65,6 +65,7 @@ export const storageService = {
       ...friend,
       id: Date.now().toString(),
       createdAt: new Date().toISOString(),
+      drinks: {},
     };
     friends.push(newFriend);
     storageService.saveFriends(friends);
@@ -76,6 +77,37 @@ export const storageService = {
     const updated = friends.filter(f => f.id !== friendId);
     storageService.saveFriends(updated);
     return updated;
+  },
+
+  addDrinkToFriend: (friendId, date, drink) => {
+    const friends = storageService.getFriends();
+    const friend = friends.find(f => f.id === friendId);
+    if (friend) {
+      if (!friend.drinks) friend.drinks = {};
+      if (!friend.drinks[date]) {
+        friend.drinks[date] = [];
+      }
+      friend.drinks[date].push({
+        ...drink,
+        id: Date.now(),
+        timestamp: new Date().toISOString(),
+      });
+      storageService.saveFriends(friends);
+    }
+    return friends;
+  },
+
+  removeDrinkFromFriend: (friendId, date, drinkId) => {
+    const friends = storageService.getFriends();
+    const friend = friends.find(f => f.id === friendId);
+    if (friend && friend.drinks && friend.drinks[date]) {
+      friend.drinks[date] = friend.drinks[date].filter(d => d.id !== drinkId);
+      if (friend.drinks[date].length === 0) {
+        delete friend.drinks[date];
+      }
+      storageService.saveFriends(friends);
+    }
+    return friends;
   },
 
   getTheme: () => {
