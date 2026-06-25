@@ -87,6 +87,31 @@ export const DRINKS_DB = {
     volume: 250,
     beerFactor: 0,
   },
+  hubertus: {
+    name: 'Hubertus Tropfen',
+    category: 'Liqueur',
+    defaultAbv: 35,
+    icon: '🌿',
+    volume: 50,
+    beerFactor: 0,
+  },
+  klopfer: {
+    name: 'Klopfer',
+    category: 'Spirits',
+    defaultAbv: 32,
+    icon: '🌰',
+    volume: 50,
+    beerFactor: 0,
+  },
+  mischen: {
+    name: 'Mischen',
+    category: 'Mix',
+    defaultAbv: 0,
+    icon: '🥤',
+    volume: 0,
+    beerFactor: 0,
+    isCustomMix: true,
+  },
 };
 
 export const calculateAlcohol = (volumeMl, abvPercent) => {

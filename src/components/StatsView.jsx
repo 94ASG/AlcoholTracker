@@ -32,6 +32,42 @@ export const StatsView = () => {
       </div>
 
       <div className="card">
+        <h3 className="font-bold text-slate-900 dark:text-white mb-4 text-sm">🏆 LEADERBOARD</h3>
+        <div className="space-y-2">
+          {leaderboard.map((person, index) => (
+            <div
+              key={person.id}
+              className="p-3 bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700"
+            >
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-3 flex-1">
+                  <span className="font-bold text-lg text-slate-600 dark:text-slate-400 w-6 text-center">{index + 1}</span>
+                  <span className="text-3xl">{person.avatar}</span>
+                  <div className="flex-1 text-left">
+                    <div className="font-medium text-slate-900 dark:text-white text-sm">{person.name}</div>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="grid grid-cols-2 gap-3 ml-12 text-xs">
+                <div className="bg-slate-100 dark:bg-slate-700 p-2 rounded">
+                  <div className="text-slate-600 dark:text-slate-400 mb-1 font-medium">HEUTE</div>
+                  <div className="font-bold text-slate-900 dark:text-white">{formatAlcohol(person.alcohol)}ml</div>
+                  <div className="text-slate-600 dark:text-slate-400">{formatBeerLiters(person.beerLiters)}L</div>
+                </div>
+                
+                <div className="bg-slate-100 dark:bg-slate-700 p-2 rounded">
+                  <div className="text-slate-600 dark:text-slate-400 mb-1 font-medium">7 TAGE</div>
+                  <div className="font-bold text-slate-900 dark:text-white">{formatAlcohol(person.weeklyAlcohol)}ml</div>
+                  <div className="text-slate-600 dark:text-slate-400">{formatBeerLiters(person.weeklyBeerLiters)}L</div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="card">
         <h3 className="font-bold text-slate-900 dark:text-white mb-4 text-sm">WÖCHENTLICHER ÜBERBLICK</h3>
         <div className="flex items-end gap-1 h-32 mb-4 pb-2 border-b border-slate-200 dark:border-slate-800">
           {weekDates.map(date => {
@@ -86,42 +122,6 @@ export const StatsView = () => {
             <div className="text-xs text-slate-600 dark:text-slate-400 font-medium mb-1">DURCHSCHNITT</div>
             <div className="text-xl font-bold text-slate-900 dark:text-white">{(monthAverage * 1000).toFixed(0)}<span className="text-xs">ml</span></div>
           </div>
-        </div>
-      </div>
-
-      <div className="card">
-        <h3 className="font-bold text-slate-900 dark:text-white mb-4 text-sm">🏆 LEADERBOARD</h3>
-        <div className="space-y-2">
-          {leaderboard.map((person, index) => (
-            <div
-              key={person.id}
-              className="p-3 bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700"
-            >
-              <div className="flex items-center justify-between mb-2">
-                <div className="flex items-center gap-3 flex-1">
-                  <span className="font-bold text-lg text-slate-600 dark:text-slate-400 w-6 text-center">{index + 1}</span>
-                  <span className="text-3xl">{person.avatar}</span>
-                  <div className="flex-1 text-left">
-                    <div className="font-medium text-slate-900 dark:text-white text-sm">{person.name}</div>
-                  </div>
-                </div>
-              </div>
-              
-              <div className="grid grid-cols-2 gap-3 ml-12 text-xs">
-                <div className="bg-slate-100 dark:bg-slate-700 p-2 rounded">
-                  <div className="text-slate-600 dark:text-slate-400 mb-1 font-medium">HEUTE</div>
-                  <div className="font-bold text-slate-900 dark:text-white">{formatAlcohol(person.alcohol)}ml</div>
-                  <div className="text-slate-600 dark:text-slate-400">{formatBeerLiters(person.beerLiters)}L</div>
-                </div>
-                
-                <div className="bg-slate-100 dark:bg-slate-700 p-2 rounded">
-                  <div className="text-slate-600 dark:text-slate-400 mb-1 font-medium">7 TAGE</div>
-                  <div className="font-bold text-slate-900 dark:text-white">{formatAlcohol(person.weeklyAlcohol)}ml</div>
-                  <div className="text-slate-600 dark:text-slate-400">{formatBeerLiters(person.weeklyBeerLiters)}L</div>
-                </div>
-              </div>
-            </div>
-          ))}
         </div>
       </div>
     </div>
