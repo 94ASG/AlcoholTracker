@@ -5,6 +5,7 @@ import { AddDrinkModal } from './AddDrinkModal';
 import { AddFriendModal } from './AddFriendModal';
 import { DrinksList } from './DrinksList';
 import { EveningPodium } from './EveningPodium';
+import { ResetModal } from './ResetModal';
 
 export const CombinedProfileView = () => {
   const [isAddDrinkOpen, setIsAddDrinkOpen] = useState(false);
@@ -13,6 +14,7 @@ export const CombinedProfileView = () => {
   const [addDrinkFor, setAddDrinkFor] = useState(null);
   const [deleteConfirmId, setDeleteConfirmId] = useState(null);
   const [isEveningPodiumOpen, setIsEveningPodiumOpen] = useState(false);
+  const [isResetModalOpen, setIsResetModalOpen] = useState(false);
   const { 
     currentUser, 
     friends, 
@@ -121,12 +123,12 @@ export const CombinedProfileView = () => {
                   <div className="text-4xl">{person.avatar}</div>
                   <div className="flex-1">
                     <h3 className="font-semibold text-slate-900 dark:text-white">{person.name}</h3>
-                    <div className="flex gap-4 mt-1">
-                      <span className="text-xs text-slate-600 dark:text-slate-400">
-                        <span className="font-medium text-slate-900 dark:text-white">{formatBeerLiters(person.beerLiters)}</span>L
+                    <div className="flex gap-6 mt-1 text-sm">
+                      <span className="text-slate-600 dark:text-slate-400">
+                        🍺 <span className="font-medium text-slate-900 dark:text-white">{formatBeerLiters(person.beerLiters)}</span>L
                       </span>
-                      <span className="text-xs text-slate-600 dark:text-slate-400">
-                        <span className="font-medium text-slate-900 dark:text-white">{formatAlcohol(person.alcohol)}</span>ml
+                      <span className="text-slate-600 dark:text-slate-400">
+                        Reiner Alkohol: <span className="font-medium text-slate-900 dark:text-white">{formatAlcohol(person.alcohol)}</span>ml
                       </span>
                     </div>
                   </div>
@@ -225,6 +227,13 @@ export const CombinedProfileView = () => {
         >
           🎊 Abend beenden
         </button>
+
+        <button
+          onClick={() => setIsResetModalOpen(true)}
+          className="w-full py-3 bg-red-500 hover:bg-red-600 text-white font-bold rounded-lg transition-all transform hover:scale-105"
+        >
+          🔄 Reset
+        </button>
       </div>
 
       {isAddDrinkOpen && (
@@ -248,6 +257,12 @@ export const CombinedProfileView = () => {
         <EveningPodium
           onClose={() => setIsEveningPodiumOpen(false)}
           onConfirm={() => {}}
+        />
+      )}
+
+      {isResetModalOpen && (
+        <ResetModal
+          onClose={() => setIsResetModalOpen(false)}
         />
       )}
     </div>

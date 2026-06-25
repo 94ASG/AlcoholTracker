@@ -225,6 +225,22 @@ export const AppProvider = ({ children }) => {
     return board.sort((a, b) => b.alcohol - a.alcohol);
   };
 
+  const clearAllDrinks = () => {
+    const today = getDateKey();
+    const updated = { ...drinks };
+    delete updated[today];
+    setDrinks(updated);
+    storageService.setDrinks(updated);
+  };
+
+  const resetEverything = () => {
+    const updated = {};
+    setDrinks(updated);
+    setFriends([]);
+    storageService.setDrinks(updated);
+    storageService.setFriends([]);
+  };
+
   return (
     <AppContext.Provider
       value={{
@@ -253,6 +269,8 @@ export const AppProvider = ({ children }) => {
         theme,
         setTheme,
         getLeaderboard,
+        clearAllDrinks,
+        resetEverything,
       }}
     >
       {children}

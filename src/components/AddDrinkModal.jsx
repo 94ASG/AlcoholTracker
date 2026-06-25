@@ -14,7 +14,14 @@ export const AddDrinkModal = ({ onClose, onAdd }) => {
   const [mixConfig, setMixConfig] = useState({
     ratio: '50-50',
     size: 200,
+    spirit: 'vodka',
   });
+
+  const spirits = {
+    vodka: { name: 'Wodka', abv: 40, icon: '🥃' },
+    korn: { name: 'Korn', abv: 38, icon: '🌾' },
+    springer: { name: 'Springer', abv: 33, icon: '🍺' },
+  };
 
   const handleQuickAdd = (drinkKey) => {
     const drink = DRINKS_DB[drinkKey];
@@ -32,13 +39,17 @@ export const AddDrinkModal = ({ onClose, onAdd }) => {
   };
 
   const handleMixAdd = () => {
-    const avgAbv = 40;
+    const spiritPercent = parseInt(mixConfig.ratio.split('-')[0]);
+    const spirit = spirits[mixConfig.spirit];
+    const spiritAbv = spirit.abv;
+    
+    const effectiveAbv = (spiritPercent / 100) * spiritAbv;
     
     onAdd({
-      name: `Mischen (${mixConfig.ratio})`,
+      name: `Mischen ${spirit.name} (${mixConfig.ratio})`,
       icon: '🥤',
       volume: mixConfig.size,
-      abv: avgAbv,
+      abv: effectiveAbv,
       beerFactor: 0,
     });
   };
@@ -69,18 +80,33 @@ export const AddDrinkModal = ({ onClose, onAdd }) => {
           <div className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-slate-900 dark:text-white mb-2">
-                Verhältnis
+                Spirituosentyp
+              </label>
+              <select
+                value={mixConfig.spirit}
+                onChange={(e) => setMixConfig({ ...mixConfig, spirit: e.target.value })}
+                className="input-field"
+              >
+                <option value="vodka">🥃 Wodka (40%)</option>
+                <option value="korn">🌾 Korn (38%)</option>
+                <option value="springer">🍺 Springer (33%)</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-slate-900 dark:text-white mb-2">
+                Verhältnis (Spirituose - Softgetränk)
               </label>
               <select
                 value={mixConfig.ratio}
                 onChange={(e) => setMixConfig({ ...mixConfig, ratio: e.target.value })}
                 className="input-field"
               >
+                <option value="10-90">10% - 90%</option>
+                <option value="20-80">20% - 80%</option>
                 <option value="30-70">30% - 70%</option>
                 <option value="40-60">40% - 60%</option>
                 <option value="50-50">50% - 50%</option>
-                <option value="60-40">60% - 40%</option>
-                <option value="70-30">70% - 30%</option>
               </select>
             </div>
 
