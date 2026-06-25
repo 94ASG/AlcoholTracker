@@ -230,15 +230,15 @@ export const AppProvider = ({ children }) => {
     const updated = { ...drinks };
     delete updated[today];
     setDrinks(updated);
-    storageService.setDrinks(updated);
+    storageService.saveDrinks(updated);
   };
 
   const resetEverything = () => {
     const updated = {};
     setDrinks(updated);
     setFriends([]);
-    storageService.setDrinks(updated);
-    storageService.setFriends([]);
+    storageService.saveDrinks(updated);
+    storageService.saveFriends([]);
   };
 
   return (

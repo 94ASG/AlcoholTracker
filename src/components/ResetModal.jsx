@@ -8,18 +8,22 @@ export const ResetModal = ({ onClose }) => {
 
   const handleConfirmDrinksOnly = () => {
     clearAllDrinks();
+    setStep('choose');
+    setConfirmMode(null);
     onClose();
   };
 
   const handleConfirmEverything = () => {
     resetEverything();
+    setStep('choose');
+    setConfirmMode(null);
     onClose();
   };
 
   if (step === 'confirm' && confirmMode === 'drinks') {
     return (
       <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 max-w-md mx-auto animate-fadeIn">
-        <div className="bg-white dark:bg-slate-900 rounded-2xl p-6 w-full mx-4 animate-slideIn">
+        <div className="card rounded-2xl p-6 w-full mx-4 animate-slideIn">
           <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-4">Bestätigung</h2>
           <p className="text-slate-600 dark:text-slate-400 mb-6">
             Alle Getränke von heute wirklich löschen?
@@ -28,13 +32,13 @@ export const ResetModal = ({ onClose }) => {
           <div className="flex gap-3">
             <button
               onClick={() => setStep('choose')}
-              className="flex-1 px-4 py-2 bg-slate-200 dark:bg-slate-700 text-slate-900 dark:text-white rounded-lg hover:bg-slate-300 dark:hover:bg-slate-600 transition-colors font-medium"
+              className="flex-1 btn-secondary py-2"
             >
               Abbrechen
             </button>
             <button
               onClick={handleConfirmDrinksOnly}
-              className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium"
+              className="flex-1 py-2 px-4 bg-red-500 hover:bg-red-600 text-white font-bold rounded-lg transition-all"
             >
               Löschen
             </button>
@@ -47,7 +51,7 @@ export const ResetModal = ({ onClose }) => {
   if (step === 'confirm' && confirmMode === 'all') {
     return (
       <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 max-w-md mx-auto animate-fadeIn">
-        <div className="bg-white dark:bg-slate-900 rounded-2xl p-6 w-full mx-4 animate-slideIn">
+        <div className="card rounded-2xl p-6 w-full mx-4 animate-slideIn">
           <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-4">Bestätigung</h2>
           <p className="text-slate-600 dark:text-slate-400 mb-2">
             ⚠️ Alle Getränke UND alle Freunde wirklich löschen?
@@ -59,13 +63,13 @@ export const ResetModal = ({ onClose }) => {
           <div className="flex gap-3">
             <button
               onClick={() => setStep('choose')}
-              className="flex-1 px-4 py-2 bg-slate-200 dark:bg-slate-700 text-slate-900 dark:text-white rounded-lg hover:bg-slate-300 dark:hover:bg-slate-600 transition-colors font-medium"
+              className="flex-1 btn-secondary py-2"
             >
               Abbrechen
             </button>
             <button
               onClick={handleConfirmEverything}
-              className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium"
+              className="flex-1 py-2 px-4 bg-red-600 hover:bg-red-700 text-white font-bold rounded-lg transition-all"
             >
               Alles löschen
             </button>
@@ -77,7 +81,7 @@ export const ResetModal = ({ onClose }) => {
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 max-w-md mx-auto animate-fadeIn">
-      <div className="bg-white dark:bg-slate-900 rounded-2xl p-6 w-full mx-4 animate-slideIn">
+      <div className="card rounded-2xl p-6 w-full mx-4 animate-slideIn">
         <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-4">Reset</h2>
         <p className="text-slate-600 dark:text-slate-400 mb-6">
           Was möchtest du löschen?
@@ -89,9 +93,9 @@ export const ResetModal = ({ onClose }) => {
               setConfirmMode('drinks');
               setStep('confirm');
             }}
-            className="w-full p-4 border-2 border-blue-300 dark:border-blue-700 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors text-left"
+            className="w-full p-4 border-2 border-blue-400 dark:border-blue-600 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors text-left font-medium text-slate-900 dark:text-white"
           >
-            <div className="font-medium text-slate-900 dark:text-white">Nur Getränke löschen</div>
+            <div>🗑️ Nur Getränke löschen</div>
             <div className="text-sm text-slate-600 dark:text-slate-400 mt-1">
               Alle Getränke von heute löschen, Freunde bleiben
             </div>
@@ -102,9 +106,9 @@ export const ResetModal = ({ onClose }) => {
               setConfirmMode('all');
               setStep('confirm');
             }}
-            className="w-full p-4 border-2 border-red-300 dark:border-red-700 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors text-left"
+            className="w-full p-4 border-2 border-red-400 dark:border-red-600 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors text-left font-medium text-slate-900 dark:text-white"
           >
-            <div className="font-medium text-slate-900 dark:text-white">Alles zurücksetzen</div>
+            <div>⚠️ Alles zurücksetzen</div>
             <div className="text-sm text-slate-600 dark:text-slate-400 mt-1">
               Alle Getränke UND alle Freunde löschen
             </div>
@@ -112,7 +116,7 @@ export const ResetModal = ({ onClose }) => {
 
           <button
             onClick={onClose}
-            className="w-full p-3 bg-slate-200 dark:bg-slate-700 text-slate-900 dark:text-white rounded-lg hover:bg-slate-300 dark:hover:bg-slate-600 transition-colors font-medium"
+            className="w-full p-3 btn-secondary"
           >
             Abbrechen
           </button>
