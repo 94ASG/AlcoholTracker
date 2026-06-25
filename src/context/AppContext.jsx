@@ -231,6 +231,17 @@ export const AppProvider = ({ children }) => {
     delete updated[today];
     setDrinks(updated);
     storageService.saveDrinks(updated);
+    
+    const updatedFriends = friends.map(friend => {
+      const friendUpdated = { ...friend };
+      if (friendUpdated.drinks) {
+        friendUpdated.drinks = { ...friendUpdated.drinks };
+        delete friendUpdated.drinks[today];
+      }
+      return friendUpdated;
+    });
+    setFriends(updatedFriends);
+    storageService.saveFriends(updatedFriends);
   };
 
   const resetEverything = () => {

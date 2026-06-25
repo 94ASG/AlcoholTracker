@@ -114,62 +114,62 @@ export const CombinedProfileView = () => {
           return (
             <div key={person.id}>
               <div
-                className={`card rounded-2xl overflow-hidden animate-slideIn ${
+                className={`card rounded-xl p-3 overflow-hidden animate-slideIn ${
                   person.isCurrentUser
                     ? 'bg-gradient-to-br from-blue-50 dark:from-blue-900/20 to-purple-50 dark:to-purple-900/20 border-2 border-blue-300 dark:border-blue-700'
                     : ''
                 }`}
               >
-                <div className="p-5 space-y-4">
+                <div className="space-y-2">
                   <button
                     onClick={() => setExpandedPersonId(isExpanded ? null : person.id)}
                     className="w-full text-left flex items-center justify-between"
                   >
-                    <div className="flex items-center gap-3">
-                      <div className="text-5xl">{person.avatar}</div>
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <h3 className={`font-bold text-xl ${
+                    <div className="flex items-center gap-2 min-w-0">
+                      <div className="text-3xl flex-shrink-0">{person.avatar}</div>
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-1 flex-wrap">
+                          <h3 className={`font-bold text-base ${
                             person.isCurrentUser
                               ? 'text-blue-900 dark:text-blue-200'
                               : 'text-slate-900 dark:text-white'
                           }`}>{person.name}</h3>
                           {person.isCurrentUser && (
-                            <span className="px-2.5 py-1 bg-blue-500 dark:bg-blue-600 text-white text-xs font-bold rounded-full">Du</span>
+                            <span className="px-2 py-0.5 bg-blue-500 dark:bg-blue-600 text-white text-xs font-bold rounded-full">Du</span>
                           )}
                         </div>
                       </div>
                     </div>
-                    <span className="text-slate-400 dark:text-slate-500 text-2xl transition-transform" style={{
+                    <span className="text-slate-400 dark:text-slate-500 text-lg transition-transform flex-shrink-0 ml-2" style={{
                       transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)'
                     }}>
                       ▼
                     </span>
                   </button>
 
-                  <div className="text-center bg-slate-100 dark:bg-slate-700/40 rounded-xl p-3">
-                    <div className="text-3xl font-bold text-slate-900 dark:text-white tracking-wide">
-                      🍺 {formatBeerLiters(person.beerLiters)}L <span className="text-slate-500">-</span> 💧 {formatAlcohol(person.alcohol)}ml
+                  <div className="bg-slate-100 dark:bg-slate-700/40 rounded-lg p-2 text-center">
+                    <div className="text-lg font-bold text-slate-900 dark:text-white">
+                      🍺 {formatBeerLiters(person.beerLiters)}L <span className="text-xs text-slate-500">-</span> 💧 {formatAlcohol(person.alcohol)}ml
                     </div>
                   </div>
 
-                  <div className="flex items-center justify-center gap-3">
+                  <div className="flex items-center justify-center gap-2 pt-1">
                     {!person.isCurrentUser && (
                       <>
                         <div className="relative">
                           {deleteConfirmId === person.id ? (
-                            <div className="absolute left-0 top-full mt-2 bg-red-500 text-white rounded-lg p-3 whitespace-nowrap z-50 text-sm">
-                              <div className="mb-2 font-semibold">Wirklich löschen?</div>
-                              <div className="flex gap-2">
+                            <div className="absolute left-0 top-full mt-1 bg-red-500 text-white rounded-lg p-2 whitespace-nowrap z-50 text-xs">
+                              <div className="mb-1 font-semibold">Wirklich löschen?</div>
+                              <div className="flex gap-1">
                                 <button
                                   onClick={() => handleDeleteFriend(person.id)}
-                                  className="px-3 py-1 bg-red-600 hover:bg-red-700 rounded font-bold"
+                                  className="px-2 py-0.5 bg-red-600 hover:bg-red-700 rounded text-xs font-bold"
                                 >
                                   Ja
                                 </button>
                                 <button
                                   onClick={() => setDeleteConfirmId(null)}
-                                  className="px-3 py-1 bg-red-400 hover:bg-red-500 rounded"
+                                  className="px-2 py-0.5 bg-red-400 hover:bg-red-500 rounded text-xs"
                                 >
                                   Nein
                                 </button>
@@ -178,13 +178,13 @@ export const CombinedProfileView = () => {
                           ) : null}
                           <button
                             onClick={() => setDeleteConfirmId(person.id)}
-                            className="p-2.5 text-red-600 dark:text-red-400 font-bold text-2xl hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
+                            className="p-1.5 text-red-600 dark:text-red-400 font-bold text-lg hover:bg-red-50 dark:hover:bg-red-900/20 rounded transition-colors"
                             aria-label="Remove friend"
                           >
                             ✕
                           </button>
                         </div>
-                        <div className="text-2xl text-slate-300 dark:text-slate-600">|</div>
+                        <div className="text-lg text-slate-300 dark:text-slate-600">|</div>
                       </>
                     )}
                     <button
@@ -192,7 +192,7 @@ export const CombinedProfileView = () => {
                         setAddDrinkFor(person.isCurrentUser ? 'self' : person.id);
                         setIsAddDrinkOpen(true);
                       }}
-                      className="p-2.5 text-3xl hover:bg-blue-100 dark:hover:bg-blue-900/30 rounded-lg transition-colors"
+                      className="p-1.5 text-2xl hover:bg-blue-100 dark:hover:bg-blue-900/30 rounded transition-colors"
                       aria-label="Add drink"
                       title="Getränk hinzufügen"
                     >
@@ -202,18 +202,16 @@ export const CombinedProfileView = () => {
                 </div>
 
                 {isExpanded && (
-                  <div className="border-t border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/30">
-                    <div className="p-5">
-                      <h3 className="font-bold text-slate-900 dark:text-white mb-4">Getränke heute</h3>
-                      {drinks.length === 0 ? (
-                        <p className="text-slate-600 dark:text-slate-400 text-center py-8 text-sm">Noch keine Getränke</p>
-                      ) : (
-                        <DrinksList 
-                          drinks={drinks} 
-                          friendId={person.isCurrentUser ? null : person.id} 
-                        />
-                      )}
-                    </div>
+                  <div className="border-t border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/30 -mx-3 mt-2 px-3 pt-2">
+                    <h3 className="font-bold text-slate-900 dark:text-white mb-2 text-sm">Getränke heute</h3>
+                    {drinks.length === 0 ? (
+                      <p className="text-slate-600 dark:text-slate-400 text-center py-4 text-xs">Noch keine Getränke</p>
+                    ) : (
+                      <DrinksList 
+                        drinks={drinks} 
+                        friendId={person.isCurrentUser ? null : person.id} 
+                      />
+                    )}
                   </div>
                 )}
               </div>
@@ -223,16 +221,6 @@ export const CombinedProfileView = () => {
       </div>
 
       <div className="space-y-3">
-        <button
-          onClick={() => {
-            setAddDrinkFor('self');
-            setIsAddDrinkOpen(true);
-          }}
-          className="btn-primary w-full py-3 text-lg"
-        >
-          ➕ Getränk für mich hinzufügen
-        </button>
-
         <button
           onClick={() => setIsAddFriendOpen(true)}
           className="btn-secondary w-full py-3 text-lg"
