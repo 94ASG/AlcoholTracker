@@ -116,6 +116,17 @@ export const AppProvider = ({ children }) => {
     setFriends((prev) => prev.filter((f) => f.id !== friendId));
   };
 
+  const deleteSelf = async () => {
+    if (!currentUser) return;
+    await storageService.removePerson(currentUser.id);
+    const newSelf = await storageService.createPerson({ name: 'Du', avatar: '👤' });
+    selfIdRef.current = newSelf.id;
+    storageService.saveSelfId(newSelf.id);
+    setCurrentUser(newSelf);
+    setFriends([]);
+    setNeedsIdentitySetup(true);
+  };
+
   const addDrinkToFriend = async (friendId, drink) => {
     const today = getDateKey();
     const updated = await storageService.addDrink(friendId, today, drink);
@@ -202,6 +213,7 @@ export const AppProvider = ({ children }) => {
       value={{
         currentUser,
         updateUser,
+        deleteSelf,
         drinks: currentUser?.drinks || {},
         addDrink,
         removeDrink,

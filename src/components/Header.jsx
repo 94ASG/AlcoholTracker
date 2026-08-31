@@ -1,8 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
+import { ProfileModal } from './ProfileModal';
 
 export const Header = () => {
   const { theme, setTheme, currentUser } = useApp();
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
 
   const toggleTheme = () => {
     setTheme(theme === 'light' ? 'dark' : 'light');
@@ -20,10 +22,16 @@ export const Header = () => {
 
         <div className="flex items-center gap-1.5">
           {currentUser && (
-            <span className="hidden sm:flex items-center gap-1.5 text-sm text-dim">
-              <span className="text-lg leading-none">{currentUser.avatar}</span>
-              <span className="font-semibold text-paper">{currentUser.name}</span>
-            </span>
+            <button
+              onClick={() => setIsProfileOpen(true)}
+              className="flex items-center gap-2 pl-1.5 pr-2 py-1 rounded-xl hover:bg-surface transition-colors active:scale-95"
+              aria-label="Profil bearbeiten"
+            >
+              <span className="text-2xl leading-none">{currentUser.avatar}</span>
+              <span className="font-semibold text-paper text-sm max-w-[80px] truncate">
+                {currentUser.name}
+              </span>
+            </button>
           )}
           <button
             onClick={toggleTheme}
@@ -34,6 +42,10 @@ export const Header = () => {
           </button>
         </div>
       </div>
+
+      {isProfileOpen && (
+        <ProfileModal onClose={() => setIsProfileOpen(false)} />
+      )}
     </header>
   );
 };

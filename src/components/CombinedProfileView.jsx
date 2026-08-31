@@ -7,6 +7,7 @@ import { DrinksList } from './DrinksList';
 import { EveningPodium } from './EveningPodium';
 import { ResetModal } from './ResetModal';
 import { OnboardingModal } from './OnboardingModal';
+import { ConfirmDeleteModal } from './ConfirmDeleteModal';
 
 export const CombinedProfileView = () => {
   const [isAddDrinkOpen, setIsAddDrinkOpen] = useState(false);
@@ -197,7 +198,11 @@ export const CombinedProfileView = () => {
                       </span>
                     </span>
                     <span
-                      className={`text-faint text-sm transition-transform flex-shrink-0 ${isExpanded ? 'rotate-180' : ''}`}
+                      className={`w-7 h-7 rounded-lg flex items-center justify-center text-xl leading-none transition-all flex-shrink-0 ${
+                        isExpanded
+                          ? 'bg-amber/15 text-amber rotate-180'
+                          : 'bg-surface text-dim border border-line/15'
+                      }`}
                     >
                       ▾
                     </span>
@@ -217,30 +222,12 @@ export const CombinedProfileView = () => {
 
                 {!person.isCurrentUser && (
                   <div className="flex justify-end mt-2">
-                    {deleteConfirmId === person.id ? (
-                      <div className="flex items-center gap-2 bg-red-500/10 border border-red-500/30 rounded-xl px-3 py-1.5 animate-pop">
-                        <span className="text-xs text-red-400 font-semibold">Wirklich löschen?</span>
-                        <button
-                          onClick={() => handleDeleteFriend(person.id)}
-                          className="px-2 py-0.5 bg-red-500 text-white rounded-md text-xs font-bold"
-                        >
-                          Ja
-                        </button>
-                        <button
-                          onClick={() => setDeleteConfirmId(null)}
-                          className="px-2 py-0.5 bg-surface text-dim rounded-md text-xs"
-                        >
-                          Nein
-                        </button>
-                      </div>
-                    ) : (
-                      <button
-                        onClick={() => setDeleteConfirmId(person.id)}
-                        className="text-xs text-faint hover:text-red-400 transition-colors"
-                      >
-                        Entfernen
-                      </button>
-                    )}
+                    <button
+                      onClick={() => setDeleteConfirmId(person.id)}
+                      className="text-xs text-faint hover:text-red-400 transition-colors"
+                    >
+                      Entfernen
+                    </button>
                   </div>
                 )}
               </div>
@@ -266,6 +253,13 @@ export const CombinedProfileView = () => {
       {/* Actions */}
       <div className="space-y-2.5 pt-1">
         <button
+          onClick={() => setIsOnboardingOpen(true)}
+          className="btn-secondary w-full"
+        >
+          <span className="text-lg leading-none">🧭</span> So funktioniert's
+        </button>
+
+        <button
           onClick={() => setIsAddFriendOpen(true)}
           className="btn-secondary w-full"
         >
@@ -277,13 +271,6 @@ export const CombinedProfileView = () => {
           className="btn-primary w-full"
         >
           <span className="text-lg leading-none">🎊</span> Abend beenden
-        </button>
-
-        <button
-          onClick={() => setIsOnboardingOpen(true)}
-          className="btn-secondary w-full"
-        >
-          <span className="text-lg leading-none">🧭</span> So funktioniert's
         </button>
 
         <button
@@ -327,6 +314,16 @@ export const CombinedProfileView = () => {
       {isOnboardingOpen && (
         <OnboardingModal
           onClose={() => setIsOnboardingOpen(false)}
+        />
+      )}
+
+      {deleteConfirmId && (
+        <ConfirmDeleteModal
+          title="Person entfernen?"
+          message={`Möchtest du "${friends.find((f) => f.id === deleteConfirmId)?.name || 'diese Person'}" wirklich entfernen? Alle ihre Getränke werden dauerhaft gelöscht.`}
+          confirmLabel="Ja, entfernen"
+          onConfirm={() => handleDeleteFriend(deleteConfirmId)}
+          onCancel={() => setDeleteConfirmId(null)}
         />
       )}
     </div>

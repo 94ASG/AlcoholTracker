@@ -64,9 +64,8 @@ export const AddDrinkModal = ({ onClose, onAdd }) => {
   return (
     <>
       <div className="sheet-backdrop" onClick={() => mixMode ? setMixMode(null) : onClose()} />
-      <div className="sheet p-6 pb-8">
-        <div className="sheet-handle" />
-        <div className="flex justify-between items-center mb-5">
+      <div className="fixed inset-0 z-50 max-w-md mx-auto bg-surface flex flex-col animate-fadeIn">
+        <div className="flex items-center justify-between px-6 pt-5 pb-3 border-b border-line/10">
           <h2 className="display text-2xl text-paper">
             {mixMode ? 'Mischen konfigurieren' : 'Getränk hinzufügen'}
           </h2>
@@ -79,6 +78,7 @@ export const AddDrinkModal = ({ onClose, onAdd }) => {
           </button>
         </div>
 
+        <div className="flex-1 overflow-y-auto px-6 py-4">
         {mixMode ? (
           <div className="space-y-4">
             <div>
@@ -151,7 +151,7 @@ export const AddDrinkModal = ({ onClose, onAdd }) => {
             </div>
 
             {selectedTab === 'quick' && (
-              <div className="grid grid-cols-3 gap-2 max-h-72 overflow-y-auto pr-1">
+              <div className="grid grid-cols-3 gap-2">
                 {Object.entries(DRINKS_DB).map(([key, drink]) => (
                   <button
                     key={key}
@@ -237,6 +237,7 @@ export const AddDrinkModal = ({ onClose, onAdd }) => {
             )}
           </>
         )}
+        </div>
       </div>
     </>
   );
