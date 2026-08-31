@@ -35,127 +35,117 @@ export const EveningPodium = ({ onClose, onConfirm }) => {
   };
 
   if (showPodium) {
+    const medals = ['🥇', '🥈', '🥉'];
+    const positions = ['1. Platz', '2. Platz', '3. Platz'];
     return (
-      <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 max-w-md mx-auto animate-fadeIn">
-        <div className="bg-white dark:bg-slate-900 rounded-2xl p-6 w-full mx-4 max-h-96 overflow-y-auto animate-slideIn">
-          <div className="text-center mb-8">
-            <h2 className="text-3xl font-bold text-slate-900 dark:text-white mb-2">🎉 Abend vorbei!</h2>
-            <p className="text-slate-600 dark:text-slate-400">Hier sind die Top Trinker</p>
+      <>
+        <div className="sheet-backdrop" />
+        <div className="fixed inset-0 z-50 max-w-md mx-auto flex flex-col bg-bg animate-fadeIn overflow-y-auto">
+          <div className="pt-12 pb-8 px-6 text-center">
+            <div className="text-5xl mb-3">🎉</div>
+            <h2 className="display text-4xl text-paper">Abend vorbei!</h2>
+            <p className="text-dim mt-1">Die Top-Trinker der Runde</p>
           </div>
 
-          <div className="space-y-4 mb-6">
-            {top3.map((person, index) => {
-              const medals = ['🥇', '🥈', '🥉'];
-              const positions = ['1. Platz', '2. Platz', '3. Platz'];
-              return (
-                <div key={person.id} className="relative">
-                  {index === 0 && (
-                    <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 text-4xl">👑</div>
-                  )}
-                  <div className={`p-4 rounded-lg border-2 ${
-                    index === 0 ? 'bg-yellow-50 dark:bg-yellow-900/20 border-yellow-300 dark:border-yellow-700' :
-                    index === 1 ? 'bg-gray-50 dark:bg-gray-800/50 border-gray-300 dark:border-gray-600' :
-                    'bg-orange-50 dark:bg-orange-900/20 border-orange-300 dark:border-orange-700'
-                  }`}>
-                    <div className="flex items-center gap-4">
-                      <span className="text-4xl">{medals[index]}</span>
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2">
-                          <span className="text-3xl">{person.avatar}</span>
-                          <div>
-                            <div className="font-bold text-slate-900 dark:text-white">{person.name}</div>
-                            <div className="text-xs text-slate-600 dark:text-slate-400">{positions[index]}</div>
-                          </div>
-                        </div>
+          <div className="px-6 space-y-3 flex-1">
+            {top3.map((person, index) => (
+              <div
+                key={person.id}
+                className={`card p-4 flex items-center gap-4 ${
+                  index === 0 ? 'ring-1 ring-amber/40 shadow-glow' : ''
+                }`}
+              >
+                <span className="text-4xl leading-none">{medals[index]}</span>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2">
+                    <span className="text-2xl leading-none">{person.avatar}</span>
+                    <div className="min-w-0">
+                      <div className="display text-xl text-paper truncate leading-none">
+                        {person.name}
                       </div>
-                      <div className="text-right">
-                        <div className="font-bold text-slate-900 dark:text-white">{formatAlcohol(person.alcohol)}ml</div>
-                        <div className="text-xs text-slate-600 dark:text-slate-400">{formatBeerLiters(person.beerLiters)}L</div>
+                      <div className="text-[11px] text-faint uppercase tracking-wider mt-0.5">
+                        {positions[index]}
                       </div>
                     </div>
                   </div>
                 </div>
-              );
-            })}
+                <div className="text-right">
+                  <div className="display text-2xl text-amber leading-none">{formatAlcohol(person.alcohol)}</div>
+                  <div className="text-[10px] text-faint uppercase tracking-wider">g</div>
+                </div>
+              </div>
+            ))}
+
+            {others.length > 0 && (
+              <>
+                <div className="divider my-4" />
+                <p className="eyebrow mb-2">Weitere Trinker</p>
+                <div className="space-y-2">
+                  {others.map((person) => (
+                    <div key={person.id} className="flex items-center gap-3 p-3 bg-surface border border-line/10 rounded-xl">
+                      <span className="text-xl leading-none">{person.avatar}</span>
+                      <span className="flex-1 font-semibold text-paper truncate">{person.name}</span>
+                      <div className="text-right font-mono text-xs">
+                        <div className="text-paper">{formatAlcohol(person.alcohol)}g</div>
+                        <div className="text-faint">{formatBeerLiters(person.beerLiters)}L</div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </>
+            )}
           </div>
 
-          {others.length > 0 && (
-            <>
-              <div className="border-t border-slate-200 dark:border-slate-700 my-4"></div>
-              <div className="text-sm font-medium text-slate-600 dark:text-slate-400 mb-2">Weitere Trinker</div>
-              <div className="space-y-2">
-                {others.map((person, index) => (
-                  <div key={person.id} className="p-2 bg-slate-100 dark:bg-slate-800 rounded-lg flex items-center gap-3">
-                    <span className="text-xl">{person.avatar}</span>
-                    <span className="flex-1 font-medium text-slate-900 dark:text-white">{person.name}</span>
-                    <div className="text-right text-xs">
-                      <div className="font-bold text-slate-900 dark:text-white">{formatAlcohol(person.alcohol)}ml</div>
-                      <div className="text-slate-600 dark:text-slate-400">{formatBeerLiters(person.beerLiters)}L</div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </>
-          )}
-
-          <button
-            onClick={onClose}
-            className="btn-primary w-full mt-6"
-          >
-            Fertig
-          </button>
+          <div className="p-6 pb-10">
+            <button onClick={onClose} className="btn-primary w-full">
+              Fertig
+            </button>
+          </div>
         </div>
-      </div>
+      </>
     );
   }
 
   if (confirmEnd) {
     return (
-      <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 max-w-md mx-auto animate-fadeIn">
-        <div className="bg-white dark:bg-slate-900 rounded-2xl p-6 w-full mx-4 animate-slideIn">
-          <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-4">Abend wirklich beenden?</h2>
-          <p className="text-slate-600 dark:text-slate-400 mb-6">Dies zeigt das Leaderboard für heute an.</p>
-          
+      <>
+        <div className="sheet-backdrop" onClick={() => setConfirmEnd(false)} />
+        <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-md z-50 p-5">
+          <div className="card p-6 animate-pop">
+            <h2 className="display text-2xl text-paper mb-3">Abend wirklich beenden?</h2>
+            <p className="text-dim mb-5">Dies zeigt das Leaderboard für heute an.</p>
+            <div className="flex gap-3">
+              <button onClick={() => setConfirmEnd(false)} className="flex-1 btn-secondary py-2.5">
+                Abbrechen
+              </button>
+              <button onClick={handleConfirmEnd} className="flex-1 btn-primary py-2.5">
+                Ja, beenden
+              </button>
+            </div>
+          </div>
+        </div>
+      </>
+    );
+  }
+
+  return (
+    <>
+      <div className="sheet-backdrop" onClick={onClose} />
+      <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-md z-50 p-5">
+        <div className="card p-6 animate-pop">
+          <div className="text-4xl mb-3">🎊</div>
+          <h2 className="display text-2xl text-paper mb-2">Abend beenden</h2>
+          <p className="text-dim mb-5">Möchtest du den Abend beenden und das Leaderboard für heute sehen?</p>
           <div className="flex gap-3">
-            <button
-              onClick={() => setConfirmEnd(false)}
-              className="flex-1 px-4 py-2 bg-slate-200 dark:bg-slate-700 text-slate-900 dark:text-white rounded-lg hover:bg-slate-300 dark:hover:bg-slate-600 transition-colors font-medium"
-            >
-              Abbrechen
+            <button onClick={onClose} className="flex-1 btn-secondary py-2.5">
+              Nein
             </button>
-            <button
-              onClick={handleConfirmEnd}
-              className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
-            >
+            <button onClick={() => setConfirmEnd(true)} className="flex-1 btn-primary py-2.5">
               Ja, beenden
             </button>
           </div>
         </div>
       </div>
-    );
-  }
-
-  return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 max-w-md mx-auto animate-fadeIn">
-      <div className="bg-white dark:bg-slate-900 rounded-2xl p-6 w-full mx-4 animate-slideIn">
-        <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-4">🎊 Abend beenden</h2>
-        <p className="text-slate-600 dark:text-slate-400 mb-6">Möchtest du den Abend beenden und das Leaderboard für heute sehen?</p>
-        
-        <div className="flex gap-3">
-          <button
-            onClick={onClose}
-            className="flex-1 px-4 py-2 bg-slate-200 dark:bg-slate-700 text-slate-900 dark:text-white rounded-lg hover:bg-slate-300 dark:hover:bg-slate-600 transition-colors font-medium"
-          >
-            Nein
-          </button>
-          <button
-            onClick={() => setConfirmEnd(true)}
-            className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
-          >
-            Ja, beenden
-          </button>
-        </div>
-      </div>
-    </div>
+    </>
   );
 };

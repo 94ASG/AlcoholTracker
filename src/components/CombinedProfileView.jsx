@@ -6,6 +6,7 @@ import { AddFriendModal } from './AddFriendModal';
 import { DrinksList } from './DrinksList';
 import { EveningPodium } from './EveningPodium';
 import { ResetModal } from './ResetModal';
+import { OnboardingModal } from './OnboardingModal';
 
 export const CombinedProfileView = () => {
   const [isAddDrinkOpen, setIsAddDrinkOpen] = useState(false);
@@ -15,14 +16,15 @@ export const CombinedProfileView = () => {
   const [deleteConfirmId, setDeleteConfirmId] = useState(null);
   const [isEveningPodiumOpen, setIsEveningPodiumOpen] = useState(false);
   const [isResetModalOpen, setIsResetModalOpen] = useState(false);
-  const { 
-    currentUser, 
-    friends, 
-    addDrink, 
+  const [isOnboardingOpen, setIsOnboardingOpen] = useState(false);
+  const {
+    currentUser,
+    friends,
+    addDrink,
     addDrinkToFriend,
     addFriend,
-    getTodayAlcohol, 
-    getTodayBeerLiters, 
+    getTodayAlcohol,
+    getTodayBeerLiters,
     getDrinksForDate,
     getFriendDrinksForDate,
     getFriendTodayAlcohol,
@@ -33,11 +35,13 @@ export const CombinedProfileView = () => {
 
   if (loadError) {
     return (
-      <div className="pb-24 pt-4 px-4 space-y-6">
-        <div className="pt-6 text-center">
-          <p className="text-slate-600 dark:text-slate-400">Verbindung zu Supabase fehlgeschlagen.</p>
-          <p className="text-xs text-slate-500 dark:text-slate-500 mt-2 break-words">{loadError}</p>
-          <p className="text-xs text-slate-500 dark:text-slate-500 mt-2">
+      <div className="pb-28 pt-6 px-5">
+        <div className="card p-6 text-center">
+          <div className="text-4xl mb-3">🕯️</div>
+          <h2 className="display text-2xl text-paper mb-2">Keine Verbindung</h2>
+          <p className="text-sm text-dim mb-2">Verbindung zu Supabase fehlgeschlagen.</p>
+          <p className="text-xs text-faint break-words">{loadError}</p>
+          <p className="text-xs text-faint mt-2">
             Prüfe deine VITE_SUPABASE_URL und VITE_SUPABASE_PUBLISHABLE_KEY in der .env-Datei.
           </p>
         </div>
@@ -47,9 +51,10 @@ export const CombinedProfileView = () => {
 
   if (!currentUser) {
     return (
-      <div className="pb-24 pt-4 px-4 space-y-6">
-        <div className="pt-6 text-center">
-          <p className="text-slate-600 dark:text-slate-400">Wird geladen...</p>
+      <div className="pb-28 pt-6 px-5">
+        <div className="pt-10 text-center">
+          <div className="text-3xl mb-3 animate-pulse">🍺</div>
+          <p className="text-dim">Wird geladen...</p>
         </div>
       </div>
     );
@@ -59,7 +64,7 @@ export const CombinedProfileView = () => {
     const alcohol = calculateAlcohol(drinkData.volume, drinkData.abv);
     const beerFactor = drinkData.beerFactor !== undefined ? drinkData.beerFactor : 0;
     const beerLiters = calculateBeerLiters(drinkData.volume, beerFactor);
-    
+
     if (addDrinkFor === 'self') {
       addDrink({
         name: drinkData.name,
@@ -112,149 +117,180 @@ export const CombinedProfileView = () => {
     })),
   ];
 
+  // The Round tally — total drinks tonight across everyone
+  const selfDrinks = getDrinksForDate();
+  const totalDrinks = people.reduce((sum, p) => {
+    const drinks = p.isCurrentUser ? selfDrinks : getFriendDrinksForDate(p.id);
+    return sum + drinks.length;
+  }, 0);
+
+  const leader = people.reduce((best, p) => (p.alcohol > best.alcohol ? p : best), people[0]);
+  const hasDrinks = totalDrinks > 0;
+
   return (
-    <div className="pb-24 pt-4 px-4 space-y-6">
-      <div className="pt-6">
-        <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-1">Personen</h2>
-        <p className="text-sm text-slate-600 dark:text-slate-400">Verwalte Getränke für alle</p>
+    <div className="pb-8 pt-5 px-5 space-y-5">
+      {/* Hero: the Round tally */}
+      <section className="card p-6 text-center relative overflow-hidden">
+        <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-transparent via-amber to-transparent" />
+        <p className="eyebrow mb-1">Die Runde</p>
+        <div key={totalDrinks} className="display text-7xl leading-none text-amber animate-tally mt-1">
+          {totalDrinks}
+        </div>
+        <p className="text-sm text-dim mt-1">Getränke heute</p>
+
+        <div className="divider my-4" />
+
+        <div className="flex items-center justify-center gap-2 text-sm">
+          {hasDrinks ? (
+            <>
+              <span className="text-lg leading-none">{leader.avatar}</span>
+              <span className="text-dim">Führend:</span>
+              <span className="font-bold text-paper">{leader.name}</span>
+              <span className="chip bg-amber/15 text-amber">{formatAlcohol(leader.alcohol)}g</span>
+            </>
+          ) : (
+            <span className="text-sober">Noch niemand hat getrunken — mach den Anfang 🍻</span>
+          )}
+        </div>
+      </section>
+
+      {/* Ledger header */}
+      <div className="flex items-end justify-between px-1">
+        <h2 className="display text-2xl text-paper">Die Runde</h2>
+        <span className="eyebrow">{people.length} {people.length === 1 ? 'Person' : 'Personen'}</span>
       </div>
 
-      <div className="space-y-3">
+      {/* Ledger of people */}
+      <div className="space-y-2.5">
         {people.map((person) => {
           const isExpanded = expandedPersonId === person.id;
-          const drinks = person.isCurrentUser 
-            ? getDrinksForDate() 
+          const drinks = person.isCurrentUser
+            ? getDrinksForDate()
             : getFriendDrinksForDate(person.id);
 
           return (
-            <div key={person.id}>
-              <div
-                className={`card rounded-xl p-3 overflow-hidden animate-slideIn ${
-                  person.isCurrentUser
-                    ? 'bg-gradient-to-br from-blue-50 dark:from-blue-900/20 to-purple-50 dark:to-purple-900/20 border-2 border-blue-300 dark:border-blue-700'
-                    : ''
-                }`}
-              >
-                <div className="space-y-2">
+            <div
+              key={person.id}
+              className={`card overflow-hidden transition-colors ${
+                person.isCurrentUser ? 'ring-1 ring-amber/30' : ''
+              }`}
+            >
+              <div className="p-3.5">
+                <div className="flex items-center gap-3">
                   <button
                     onClick={() => setExpandedPersonId(isExpanded ? null : person.id)}
-                    className="w-full text-left flex items-center justify-between"
+                    className="flex items-center gap-3 flex-1 min-w-0 text-left"
                   >
-                    <div className="flex items-center gap-2 min-w-0">
-                      <div className="text-3xl flex-shrink-0">{person.avatar}</div>
-                      <div className="min-w-0 flex-1">
-                        <div className="flex items-center gap-1 flex-wrap">
-                          <h3 className={`font-bold text-base ${
-                            person.isCurrentUser
-                              ? 'text-blue-900 dark:text-blue-200'
-                              : 'text-slate-900 dark:text-white'
-                          }`}>{person.name}</h3>
-                          {person.isCurrentUser && (
-                            <span className="px-2 py-0.5 bg-blue-500 dark:bg-blue-600 text-white text-xs font-bold rounded-full">Du</span>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                    <span className="text-slate-400 dark:text-slate-500 text-lg transition-transform flex-shrink-0 ml-2" style={{
-                      transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)'
-                    }}>
-                      ▼
+                    <span className="text-3xl leading-none flex-shrink-0">{person.avatar}</span>
+                    <span className="min-w-0 flex-1">
+                      <span className="flex items-center gap-2">
+                        <span className="display text-xl text-paper leading-none truncate">
+                          {person.name}
+                        </span>
+                        {person.isCurrentUser && (
+                          <span className="chip bg-amber text-bg text-[10px]">Du</span>
+                        )}
+                      </span>
+                      <span className="font-mono text-xs mt-0.5 block">
+                        <span className="font-bold text-amber">{formatAlcohol(person.alcohol)}g Alk</span>
+                        <span className="text-faint"> · {formatBeerLiters(person.beerLiters)}L Bier</span>
+                      </span>
+                    </span>
+                    <span
+                      className={`text-faint text-sm transition-transform flex-shrink-0 ${isExpanded ? 'rotate-180' : ''}`}
+                    >
+                      ▾
                     </span>
                   </button>
 
-                  <div className="bg-slate-100 dark:bg-slate-700/40 rounded-lg p-2 text-center">
-                    <div className="text-lg font-bold text-slate-900 dark:text-white">
-                      🍺 {formatBeerLiters(person.beerLiters)}L <span className="text-xs text-slate-500">-</span> 💧 {formatAlcohol(person.alcohol)}ml
-                    </div>
-                  </div>
-
-                  <div className="flex items-center justify-center gap-2 pt-1">
-                    {!person.isCurrentUser && (
-                      <>
-                        <div className="relative">
-                          {deleteConfirmId === person.id ? (
-                            <div className="absolute left-0 top-full mt-1 bg-red-500 text-white rounded-lg p-2 whitespace-nowrap z-50 text-xs">
-                              <div className="mb-1 font-semibold">Wirklich löschen?</div>
-                              <div className="flex gap-1">
-                                <button
-                                  onClick={() => handleDeleteFriend(person.id)}
-                                  className="px-2 py-0.5 bg-red-600 hover:bg-red-700 rounded text-xs font-bold"
-                                >
-                                  Ja
-                                </button>
-                                <button
-                                  onClick={() => setDeleteConfirmId(null)}
-                                  className="px-2 py-0.5 bg-red-400 hover:bg-red-500 rounded text-xs"
-                                >
-                                  Nein
-                                </button>
-                              </div>
-                            </div>
-                          ) : null}
-                          <button
-                            onClick={() => setDeleteConfirmId(person.id)}
-                            className="p-1.5 text-red-600 dark:text-red-400 font-bold text-lg hover:bg-red-50 dark:hover:bg-red-900/20 rounded transition-colors"
-                            aria-label="Remove friend"
-                          >
-                            ✕
-                          </button>
-                        </div>
-                        <div className="text-lg text-slate-300 dark:text-slate-600">|</div>
-                      </>
-                    )}
-                    <button
-                      onClick={() => {
-                        setAddDrinkFor(person.isCurrentUser ? 'self' : person.id);
-                        setIsAddDrinkOpen(true);
-                      }}
-                      className="p-1.5 text-2xl hover:bg-blue-100 dark:hover:bg-blue-900/30 rounded transition-colors"
-                      aria-label="Add drink"
-                      title="Getränk hinzufügen"
-                    >
-                      ➕
-                    </button>
-                  </div>
+                  <button
+                    onClick={() => {
+                      setAddDrinkFor(person.isCurrentUser ? 'self' : person.id);
+                      setIsAddDrinkOpen(true);
+                    }}
+                    className="w-11 h-11 rounded-xl bg-amber text-bg text-2xl leading-none flex items-center justify-center transition-all active:scale-90 flex-shrink-0"
+                    aria-label={`Getränk für ${person.name} hinzufügen`}
+                  >
+                    +
+                  </button>
                 </div>
 
-                {isExpanded && (
-                  <div className="border-t border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/30 -mx-3 mt-2 px-3 pt-2">
-                    <h3 className="font-bold text-slate-900 dark:text-white mb-2 text-sm">Getränke heute</h3>
-                    {drinks.length === 0 ? (
-                      <p className="text-slate-600 dark:text-slate-400 text-center py-4 text-xs">Noch keine Getränke</p>
+                {!person.isCurrentUser && (
+                  <div className="flex justify-end mt-2">
+                    {deleteConfirmId === person.id ? (
+                      <div className="flex items-center gap-2 bg-red-500/10 border border-red-500/30 rounded-xl px-3 py-1.5 animate-pop">
+                        <span className="text-xs text-red-400 font-semibold">Wirklich löschen?</span>
+                        <button
+                          onClick={() => handleDeleteFriend(person.id)}
+                          className="px-2 py-0.5 bg-red-500 text-white rounded-md text-xs font-bold"
+                        >
+                          Ja
+                        </button>
+                        <button
+                          onClick={() => setDeleteConfirmId(null)}
+                          className="px-2 py-0.5 bg-surface text-dim rounded-md text-xs"
+                        >
+                          Nein
+                        </button>
+                      </div>
                     ) : (
-                      <DrinksList 
-                        drinks={drinks} 
-                        friendId={person.isCurrentUser ? null : person.id} 
-                      />
+                      <button
+                        onClick={() => setDeleteConfirmId(person.id)}
+                        className="text-xs text-faint hover:text-red-400 transition-colors"
+                      >
+                        Entfernen
+                      </button>
                     )}
                   </div>
                 )}
               </div>
+
+              {isExpanded && (
+                <div className="border-t border-line/10 bg-bg/40 px-3.5 py-3">
+                  <p className="eyebrow mb-2">Getränke heute</p>
+                  {drinks.length === 0 ? (
+                    <p className="text-dim text-sm text-center py-3">Noch keine Getränke</p>
+                  ) : (
+                    <DrinksList
+                      drinks={drinks}
+                      friendId={person.isCurrentUser ? null : person.id}
+                    />
+                  )}
+                </div>
+              )}
             </div>
           );
         })}
       </div>
 
-      <div className="space-y-3">
+      {/* Actions */}
+      <div className="space-y-2.5 pt-1">
         <button
           onClick={() => setIsAddFriendOpen(true)}
-          className="btn-secondary w-full py-3 text-lg"
+          className="btn-secondary w-full"
         >
-          👥 Freund hinzufügen
+          <span className="text-lg leading-none">👥</span> Freund hinzufügen
         </button>
 
         <button
           onClick={() => setIsEveningPodiumOpen(true)}
-          className="btn-primary w-full py-3 text-lg bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
+          className="btn-primary w-full"
         >
-          🎊 Abend beenden
+          <span className="text-lg leading-none">🎊</span> Abend beenden
+        </button>
+
+        <button
+          onClick={() => setIsOnboardingOpen(true)}
+          className="btn-secondary w-full"
+        >
+          <span className="text-lg leading-none">🧭</span> So funktioniert's
         </button>
 
         <button
           onClick={() => setIsResetModalOpen(true)}
-          className="btn-secondary w-full py-3 text-lg bg-red-500 hover:bg-red-600 text-white"
+          className="w-full py-3 text-sm text-faint hover:text-red-400 transition-colors"
         >
-          🔄 Reset
+          Runde zurücksetzen
         </button>
       </div>
 
@@ -285,6 +321,12 @@ export const CombinedProfileView = () => {
       {isResetModalOpen && (
         <ResetModal
           onClose={() => setIsResetModalOpen(false)}
+        />
+      )}
+
+      {isOnboardingOpen && (
+        <OnboardingModal
+          onClose={() => setIsOnboardingOpen(false)}
         />
       )}
     </div>

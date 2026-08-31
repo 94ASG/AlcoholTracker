@@ -16,28 +16,31 @@ export const IdentitySetupModal = () => {
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-end z-50 max-w-md mx-auto animate-fadeIn">
-      <div className="bg-white dark:bg-slate-900 w-full rounded-t-2xl p-6 animate-slideIn">
-        <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-2">Willkommen! 🍺</h2>
-        <p className="text-sm text-slate-600 dark:text-slate-400 mb-6">
-          Wähle deinen Namen und Avatar, damit deine Getränke zentral gespeichert werden.
-        </p>
+    <>
+      <div className="sheet-backdrop" />
+      <div className="sheet p-6 pb-8">
+        <div className="sheet-handle" />
+        <div className="text-center mb-6">
+          <div className="text-5xl mb-3">🍺</div>
+          <h2 className="display text-3xl text-paper">Willkommen!</h2>
+          <p className="text-sm text-dim mt-1">
+            Wähle deinen Namen und Avatar, damit deine Getränke zentral gespeichert werden.
+          </p>
+        </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
-            <label className="block text-sm font-medium text-slate-900 dark:text-white mb-3">
-              Avatar wählen
-            </label>
+            <label className="block text-sm font-semibold text-paper mb-3">Avatar wählen</label>
             <div className="grid grid-cols-5 gap-2">
               {AVATARS.map((a) => (
                 <button
                   key={a}
                   type="button"
                   onClick={() => setAvatar(a)}
-                  className={`p-3 text-3xl rounded-lg border-2 transition-colors ${
+                  className={`p-3 text-3xl rounded-xl border-2 transition-all active:scale-95 ${
                     avatar === a
-                      ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
-                      : 'border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700'
+                      ? 'border-amber bg-amber/10'
+                      : 'border-line/10 bg-bg hover:border-line/30'
                   }`}
                 >
                   {a}
@@ -47,9 +50,7 @@ export const IdentitySetupModal = () => {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-slate-900 dark:text-white mb-1">
-              Name
-            </label>
+            <label className="block text-sm font-semibold text-paper mb-1">Name</label>
             <input
               type="text"
               value={name}
@@ -65,6 +66,6 @@ export const IdentitySetupModal = () => {
           </button>
         </form>
       </div>
-    </div>
+    </>
   );
 };

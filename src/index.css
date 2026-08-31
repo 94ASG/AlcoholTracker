@@ -1,47 +1,138 @@
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Karla:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-html {
-  scroll-behavior: smooth;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', sans-serif;
+/* ---- Design tokens: "The Round" (warm tavern / shared bar tab) ---- */
+:root {
+  --bg: 246 239 227;        /* warm paper */
+  --surface: 255 255 255;   /* card */
+  --raised: 240 230 212;    /* raised / hover */
+  --paper: 42 33 24;        /* warm ink text */
+  --dim: 107 93 75;         /* secondary text */
+  --faint: 154 139 118;     /* tertiary text */
+  --amber: 201 123 45;      /* primary accent */
+  --amber-deep: 168 98 31;  /* deep accent */
+  --sober: 111 133 106;     /* muted green */
+  --line: 42 33 24;         /* hairlines (use with alpha) */
 }
 
-body {
-  margin: 0;
-  padding: 0;
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+.dark {
+  --bg: 23 18 14;           /* deep warm charcoal */
+  --surface: 32 24 18;      /* card */
+  --raised: 42 32 24;       /* raised / hover */
+  --paper: 243 231 211;     /* warm cream text */
+  --dim: 183 166 143;       /* secondary text */
+  --faint: 126 111 92;      /* tertiary text */
+  --amber: 232 163 61;      /* the glow */
+  --amber-deep: 201 123 45;
+  --sober: 143 169 138;
+  --line: 243 231 211;
 }
 
-#root {
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  body {
+    margin: 0;
+    font-family: 'Karla', system-ui, sans-serif;
+    font-synthesis: none;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    background: rgb(var(--bg));
+    color: rgb(var(--paper));
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+
+  #root {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  ::selection {
+    background: rgb(var(--amber) / 0.3);
+  }
 }
 
 @layer components {
   .app-container {
-    @apply min-h-screen w-full max-w-md mx-auto bg-white dark:bg-slate-950 text-slate-900 dark:text-white transition-colors duration-300 flex flex-col;
+    @apply min-h-screen w-full max-w-md mx-auto bg-bg text-paper flex flex-col relative;
   }
 
+  /* Display face for names, numbers, section titles */
+  .display {
+    font-family: 'Bebas Neue', sans-serif;
+    letter-spacing: 0.02em;
+  }
+
+  /* Small uppercase label / eyebrow */
+  .eyebrow {
+    @apply text-[11px] font-bold uppercase tracking-[0.18em] text-faint;
+  }
+
+  /* Primary action — the amber "pour" */
   .btn-primary {
-    @apply px-4 py-3 bg-blue-500 hover:bg-blue-600 active:bg-blue-700 text-white rounded-xl transition-all duration-150 font-medium min-h-[44px] flex items-center justify-center;
+    @apply inline-flex items-center justify-center gap-2 px-5 py-3.5 rounded-2xl bg-amber text-bg font-bold min-h-[48px] transition-all duration-150 active:scale-[0.98] disabled:opacity-50;
+    box-shadow: 0 6px 20px -8px rgb(var(--amber) / 0.6);
+  }
+  .btn-primary:active {
+    box-shadow: 0 2px 10px -6px rgb(var(--amber) / 0.5);
   }
 
   .btn-secondary {
-    @apply px-4 py-3 bg-slate-200 dark:bg-slate-700 text-slate-900 dark:text-white rounded-xl transition-all duration-150 font-medium hover:bg-slate-300 dark:hover:bg-slate-600 min-h-[44px] flex items-center justify-center;
+    @apply inline-flex items-center justify-center gap-2 px-5 py-3.5 rounded-2xl bg-surface text-paper font-semibold min-h-[48px] transition-all duration-150 active:scale-[0.98];
+    border: 1px solid rgb(var(--line) / 0.1);
+  }
+
+  .btn-danger {
+    @apply inline-flex items-center justify-center gap-2 px-5 py-3.5 rounded-2xl bg-red-500/90 text-white font-bold min-h-[48px] transition-all duration-150 active:scale-[0.98];
   }
 
   .card {
-    @apply bg-slate-50 dark:bg-slate-900 rounded-xl p-5 border border-slate-200 dark:border-slate-800 transition-colors duration-300;
+    @apply bg-surface rounded-2xl;
+    border: 1px solid rgb(var(--line) / 0.1);
+    box-shadow: 0 1px 0 rgb(var(--line) / 0.6), 0 10px 30px -18px rgb(0 0 0 / 0.5);
   }
 
   .input-field {
-    @apply w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-xl bg-white dark:bg-slate-900 text-slate-900 dark:text-white placeholder-slate-500 dark:placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all min-h-[44px];
+    @apply w-full px-4 py-3 rounded-xl bg-bg text-paper placeholder-faint focus:outline-none focus:ring-2 focus:ring-amber/50 focus:border-transparent transition-all min-h-[48px];
+    border: 1px solid rgb(var(--line) / 0.15);
+  }
+
+  /* Bottom sheet */
+  .sheet-backdrop {
+    @apply fixed inset-0 bg-black/60 z-50 max-w-md mx-auto animate-fadeIn;
+  }
+  .sheet {
+    @apply fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-md bg-surface rounded-t-3xl z-50 animate-sheetUp;
+    box-shadow: 0 -20px 60px -20px rgb(0 0 0 / 0.6);
+  }
+  .sheet-handle {
+    @apply w-10 h-1.5 rounded-full mx-auto mt-3 mb-1;
+    background: rgb(var(--line) / 0.2);
+  }
+
+  .chip {
+    @apply inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold;
+  }
+
+  .divider {
+    @apply h-px w-full;
+    background: rgb(var(--line) / 0.1);
   }
 }
 
-
+/* Respect reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

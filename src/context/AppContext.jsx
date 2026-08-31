@@ -176,107 +176,6 @@ export const AppProvider = ({ children }) => {
     return friendDrinks.reduce((sum, drink) => sum + (drink.beerLiters || 0), 0);
   };
 
-  const getWeeklyStats = () => {
-    const stats = {};
-    const today = new Date();
-    for (let i = 0; i < 7; i++) {
-      const date = new Date(today);
-      date.setDate(today.getDate() - i);
-      const dateKey = getDateKey(date);
-      const dayDrinks = getDrinksForDate(dateKey);
-      stats[dateKey] = dayDrinks.reduce((sum, drink) => sum + (drink.alcohol || 0), 0);
-    }
-    return stats;
-  };
-
-  const getMonthlyStats = () => {
-    const stats = {};
-    const today = new Date();
-    const monthStart = new Date(today.getFullYear(), today.getMonth(), 1);
-    const monthEnd = new Date(today.getFullYear(), today.getMonth() + 1, 0);
-
-    for (let date = new Date(monthStart); date <= monthEnd; date.setDate(date.getDate() + 1)) {
-      const dateKey = getDateKey(date);
-      const dayDrinks = getDrinksForDate(dateKey);
-      stats[dateKey] = dayDrinks.reduce((sum, drink) => sum + (drink.alcohol || 0), 0);
-    }
-    return stats;
-  };
-
-  const getWeeklyAlcohol = () => {
-    const weeklyStats = getWeeklyStats();
-    return Object.values(weeklyStats).reduce((sum, val) => sum + val, 0);
-  };
-
-  const getWeeklyBeerLiters = () => {
-    const today = new Date();
-    let total = 0;
-    for (let i = 0; i < 7; i++) {
-      const date = new Date(today);
-      date.setDate(today.getDate() - i);
-      const dateKey = getDateKey(date);
-      const dayDrinks = getDrinksForDate(dateKey);
-      total += dayDrinks.reduce((sum, drink) => sum + (drink.beerLiters || 0), 0);
-    }
-    return total;
-  };
-
-  const getFriendWeeklyAlcohol = (friendId) => {
-    const today = new Date();
-    let total = 0;
-    for (let i = 0; i < 7; i++) {
-      const date = new Date(today);
-      date.setDate(today.getDate() - i);
-      const dateKey = getDateKey(date);
-      const friendDrinks = getFriendDrinksForDate(friendId, dateKey);
-      total += friendDrinks.reduce((sum, drink) => sum + (drink.alcohol || 0), 0);
-    }
-    return total;
-  };
-
-  const getFriendWeeklyBeerLiters = (friendId) => {
-    const today = new Date();
-    let total = 0;
-    for (let i = 0; i < 7; i++) {
-      const date = new Date(today);
-      date.setDate(today.getDate() - i);
-      const dateKey = getDateKey(date);
-      const friendDrinks = getFriendDrinksForDate(friendId, dateKey);
-      total += friendDrinks.reduce((sum, drink) => sum + (drink.beerLiters || 0), 0);
-    }
-    return total;
-  };
-
-  const getLeaderboard = () => {
-    if (!currentUser) return [];
-    const today = getDateKey();
-    const board = [
-      {
-        id: currentUser.id,
-        name: currentUser.name,
-        avatar: currentUser.avatar,
-        alcohol: getTodayAlcohol(),
-        beerLiters: getTodayBeerLiters(),
-        weeklyAlcohol: getWeeklyAlcohol(),
-        weeklyBeerLiters: getWeeklyBeerLiters(),
-      },
-    ];
-
-    friends.forEach((friend) => {
-      board.push({
-        id: friend.id,
-        name: friend.name,
-        avatar: friend.avatar,
-        alcohol: getFriendTodayAlcohol(friend.id),
-        beerLiters: getFriendTodayBeerLiters(friend.id),
-        weeklyAlcohol: getFriendWeeklyAlcohol(friend.id),
-        weeklyBeerLiters: getFriendWeeklyBeerLiters(friend.id),
-      });
-    });
-
-    return board.sort((a, b) => b.alcohol - a.alcohol);
-  };
-
   const clearAllDrinks = async () => {
     if (!currentUser) return;
     const today = getDateKey();
@@ -309,12 +208,6 @@ export const AppProvider = ({ children }) => {
         getDrinksForDate,
         getTodayAlcohol,
         getTodayBeerLiters,
-        getWeeklyStats,
-        getMonthlyStats,
-        getWeeklyAlcohol,
-        getWeeklyBeerLiters,
-        getFriendWeeklyAlcohol,
-        getFriendWeeklyBeerLiters,
         friends,
         addFriend,
         removeFriend,
@@ -325,7 +218,6 @@ export const AppProvider = ({ children }) => {
         getFriendTodayBeerLiters,
         theme,
         setTheme,
-        getLeaderboard,
         clearAllDrinks,
         resetEverything,
         loading,

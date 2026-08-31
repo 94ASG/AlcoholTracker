@@ -42,9 +42,9 @@ export const AddDrinkModal = ({ onClose, onAdd }) => {
     const spiritPercent = parseInt(mixConfig.ratio.split('-')[0]);
     const spirit = spirits[mixConfig.spirit];
     const spiritAbv = spirit.abv;
-    
+
     const effectiveAbv = (spiritPercent / 100) * spiritAbv;
-    
+
     onAdd({
       name: `Mischen ${spirit.name} (${mixConfig.ratio})`,
       icon: '🥤',
@@ -62,15 +62,18 @@ export const AddDrinkModal = ({ onClose, onAdd }) => {
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-end z-50 max-w-md mx-auto animate-fadeIn">
-      <div className="bg-white dark:bg-slate-900 w-full rounded-t-2xl p-6 animate-slideIn">
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="text-xl font-bold text-slate-900 dark:text-white">
+    <>
+      <div className="sheet-backdrop" onClick={() => mixMode ? setMixMode(null) : onClose()} />
+      <div className="sheet p-6 pb-8">
+        <div className="sheet-handle" />
+        <div className="flex justify-between items-center mb-5">
+          <h2 className="display text-2xl text-paper">
             {mixMode ? 'Mischen konfigurieren' : 'Getränk hinzufügen'}
           </h2>
           <button
-            onClick={() => mixMode ? setMixMode(null) : onClose}
-            className="text-2xl text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
+            onClick={() => mixMode ? setMixMode(null) : onClose()}
+            className="w-9 h-9 rounded-xl bg-bg flex items-center justify-center text-dim hover:text-paper transition-colors"
+            aria-label="Schließen"
           >
             ✕
           </button>
@@ -79,9 +82,7 @@ export const AddDrinkModal = ({ onClose, onAdd }) => {
         {mixMode ? (
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-slate-900 dark:text-white mb-2">
-                Spirituosentyp
-              </label>
+              <label className="block text-sm font-semibold text-paper mb-2">Spirituosentyp</label>
               <select
                 value={mixConfig.spirit}
                 onChange={(e) => setMixConfig({ ...mixConfig, spirit: e.target.value })}
@@ -94,26 +95,22 @@ export const AddDrinkModal = ({ onClose, onAdd }) => {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-slate-900 dark:text-white mb-2">
-                Verhältnis (Spirituose - Softgetränk)
-              </label>
+              <label className="block text-sm font-semibold text-paper mb-2">Verhältnis (Spirituose – Softgetränk)</label>
               <select
                 value={mixConfig.ratio}
                 onChange={(e) => setMixConfig({ ...mixConfig, ratio: e.target.value })}
                 className="input-field"
               >
-                <option value="10-90">10% - 90%</option>
-                <option value="20-80">20% - 80%</option>
-                <option value="30-70">30% - 70%</option>
-                <option value="40-60">40% - 60%</option>
-                <option value="50-50">50% - 50%</option>
+                <option value="10-90">10% – 90%</option>
+                <option value="20-80">20% – 80%</option>
+                <option value="30-70">30% – 70%</option>
+                <option value="40-60">40% – 60%</option>
+                <option value="50-50">50% – 50%</option>
               </select>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-slate-900 dark:text-white mb-2">
-                Größe (ml)
-              </label>
+              <label className="block text-sm font-semibold text-paper mb-2">Größe (ml)</label>
               <select
                 value={mixConfig.size}
                 onChange={(e) => setMixConfig({ ...mixConfig, size: parseInt(e.target.value) })}
@@ -128,49 +125,44 @@ export const AddDrinkModal = ({ onClose, onAdd }) => {
               </select>
             </div>
 
-            <button
-              onClick={handleMixAdd}
-              className="btn-primary w-full"
-            >
+            <button onClick={handleMixAdd} className="btn-primary w-full">
               Mischen hinzufügen
             </button>
           </div>
         ) : (
           <>
-            <div className="flex gap-2 mb-6 border-b border-slate-200 dark:border-slate-800">
+            <div className="flex gap-1 mb-5 bg-bg rounded-xl p-1">
               <button
                 onClick={() => setSelectedTab('quick')}
-                className={`pb-3 font-medium text-sm ${
-                  selectedTab === 'quick'
-                    ? 'text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 dark:border-blue-400'
-                    : 'text-slate-600 dark:text-slate-400'
+                className={`flex-1 py-2.5 rounded-lg text-sm font-semibold transition-colors ${
+                  selectedTab === 'quick' ? 'bg-surface text-amber shadow-sm' : 'text-dim'
                 }`}
               >
-                Schnellauswahl
+                Schnell
               </button>
               <button
                 onClick={() => setSelectedTab('custom')}
-                className={`pb-3 font-medium text-sm ${
-                  selectedTab === 'custom'
-                    ? 'text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 dark:border-blue-400'
-                    : 'text-slate-600 dark:text-slate-400'
+                className={`flex-1 py-2.5 rounded-lg text-sm font-semibold transition-colors ${
+                  selectedTab === 'custom' ? 'bg-surface text-amber shadow-sm' : 'text-dim'
                 }`}
               >
-                Benutzerdefiniert
+                Eigenes
               </button>
             </div>
 
             {selectedTab === 'quick' && (
-              <div className="grid grid-cols-2 gap-2 max-h-64 overflow-y-auto">
+              <div className="grid grid-cols-3 gap-2 max-h-72 overflow-y-auto pr-1">
                 {Object.entries(DRINKS_DB).map(([key, drink]) => (
                   <button
                     key={key}
                     onClick={() => handleQuickAdd(key)}
-                    className="p-3 card text-center hover:border-blue-400 dark:hover:border-blue-400 hover:bg-blue-50 dark:hover:bg-slate-800/50 transition-colors"
+                    className="p-3 bg-bg border border-line/10 rounded-xl text-center hover:border-amber/40 hover:bg-amber/5 transition-colors active:scale-95"
                   >
-                    <div className="text-3xl mb-2">{drink.icon}</div>
-                    <div className="font-medium text-slate-900 dark:text-white text-sm">{drink.name}</div>
-                    <div className="text-xs text-slate-600 dark:text-slate-400">{drink.defaultAbv}%</div>
+                    <div className="text-3xl mb-1.5 leading-none">{drink.icon}</div>
+                    <div className="font-semibold text-paper text-xs leading-tight">{drink.name}</div>
+                    <div className="font-mono text-[10px] text-faint mt-0.5">
+                      {drink.isCustomMix ? 'Variabel' : `${drink.defaultAbv}%`}
+                    </div>
                   </button>
                 ))}
               </div>
@@ -179,9 +171,7 @@ export const AddDrinkModal = ({ onClose, onAdd }) => {
             {selectedTab === 'custom' && (
               <form onSubmit={handleCustomAdd} className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-slate-900 dark:text-white mb-1">
-                    Getränkename
-                  </label>
+                  <label className="block text-sm font-semibold text-paper mb-1">Getränkename</label>
                   <input
                     type="text"
                     value={customDrink.name}
@@ -191,53 +181,46 @@ export const AddDrinkModal = ({ onClose, onAdd }) => {
                   />
                 </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-slate-900 dark:text-white mb-1">
-                    Menge (ml)
-                  </label>
-                  <input
-                    type="number"
-                    value={customDrink.volume}
-                    onChange={(e) => setCustomDrink({ ...customDrink, volume: parseInt(e.target.value) || 0 })}
-                    className="input-field"
-                    min="1"
-                  />
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-sm font-semibold text-paper mb-1">Menge (ml)</label>
+                    <input
+                      type="number"
+                      value={customDrink.volume}
+                      onChange={(e) => setCustomDrink({ ...customDrink, volume: parseInt(e.target.value) || 0 })}
+                      className="input-field"
+                      min="1"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-semibold text-paper mb-1">Alkohol (%)</label>
+                    <input
+                      type="number"
+                      value={customDrink.abv}
+                      onChange={(e) => setCustomDrink({ ...customDrink, abv: parseFloat(e.target.value) || 0 })}
+                      className="input-field"
+                      step="0.1"
+                      min="0"
+                      max="100"
+                    />
+                  </div>
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-slate-900 dark:text-white mb-1">
-                    Alkoholgehalt (%)
-                  </label>
-                  <input
-                    type="number"
-                    value={customDrink.abv}
-                    onChange={(e) => setCustomDrink({ ...customDrink, abv: parseFloat(e.target.value) || 0 })}
-                    className="input-field"
-                    step="0.1"
-                    min="0"
-                    max="100"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-slate-900 dark:text-white mb-1">
-                    Bier-Faktor
-                  </label>
+                  <label className="block text-sm font-semibold text-paper mb-1">Bier-Faktor</label>
                   <select
                     value={customDrink.beerFactor}
                     onChange={(e) => setCustomDrink({ ...customDrink, beerFactor: parseFloat(e.target.value) })}
                     className="input-field"
                   >
-                    <option value={0}>Keine Bier (Spirituosen, Wein)</option>
+                    <option value={0}>Kein Bier (Spirituosen, Wein)</option>
                     <option value={0.5}>Halbes Bier (Radler)</option>
                     <option value={1}>Volles Bier</option>
                   </select>
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-slate-900 dark:text-white mb-1">
-                    Emoji
-                  </label>
+                  <label className="block text-sm font-semibold text-paper mb-1">Emoji</label>
                   <input
                     type="text"
                     value={customDrink.icon}
@@ -247,10 +230,7 @@ export const AddDrinkModal = ({ onClose, onAdd }) => {
                   />
                 </div>
 
-                <button
-                  type="submit"
-                  className="btn-primary w-full"
-                >
+                <button type="submit" className="btn-primary w-full">
                   Hinzufügen
                 </button>
               </form>
@@ -258,6 +238,6 @@ export const AddDrinkModal = ({ onClose, onAdd }) => {
           </>
         )}
       </div>
-    </div>
+    </>
   );
 };

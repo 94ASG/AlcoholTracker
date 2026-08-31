@@ -54,7 +54,7 @@ export const storageService = {
   getSelfId: () => localStorage.getItem(STORAGE_KEYS.SELF_ID),
   saveSelfId: (id) => localStorage.setItem(STORAGE_KEYS.SELF_ID, id),
 
-  getTheme: () => localStorage.getItem(STORAGE_KEYS.THEME) || 'system',
+  getTheme: () => localStorage.getItem(STORAGE_KEYS.THEME) || 'dark',
   setTheme: (theme) => localStorage.setItem(STORAGE_KEYS.THEME, theme),
 
   // People (Supabase)
