@@ -1,126 +1,142 @@
+import { supabase } from '../lib/supabase';
+
 const STORAGE_KEYS = {
-  USER: 'alcohol_tracker_user',
-  DRINKS: 'alcohol_tracker_drinks',
-  FRIENDS: 'alcohol_tracker_friends',
+  SELF_ID: 'alcohol_tracker_self_id',
   THEME: 'alcohol_tracker_theme',
 };
 
+// Map a DB drink row (snake_case) to the camelCase shape the app expects.
+const mapDrink = (d) => ({
+  id: d.id,
+  name: d.name,
+  icon: d.icon,
+  volume: d.volume,
+  abv: d.abv,
+  alcohol: d.alcohol,
+  beerLiters: d.beer_liters,
+  timestamp: d.timestamp,
+  date: d.date,
+});
+
+// Group a person's drinks into { date: [drinks] }.
+const buildPerson = (person, drinks) => {
+  const grouped = {};
+  (drinks || []).forEach((d) => {
+    const drink = mapDrink(d);
+    if (!grouped[drink.date]) grouped[drink.date] = [];
+    grouped[drink.date].push(drink);
+  });
+  return {
+    id: person.id,
+    name: person.name,
+    avatar: person.avatar,
+    createdAt: person.created_at,
+    drinks: grouped,
+  };
+};
+
+const getPerson = async (id) => {
+  const { data: person, error } = await supabase
+    .from('people')
+    .select('*')
+    .eq('id', id)
+    .single();
+  if (error) throw error;
+  const { data: drinks } = await supabase
+    .from('drinks')
+    .select('*')
+    .eq('person_id', id);
+  return buildPerson(person, drinks || []);
+};
+
 export const storageService = {
-  getUser: () => {
-    const user = localStorage.getItem(STORAGE_KEYS.USER);
-    return user ? JSON.parse(user) : null;
+  // Local identity (which person this browser is)
+  getSelfId: () => localStorage.getItem(STORAGE_KEYS.SELF_ID),
+  saveSelfId: (id) => localStorage.setItem(STORAGE_KEYS.SELF_ID, id),
+
+  getTheme: () => localStorage.getItem(STORAGE_KEYS.THEME) || 'system',
+  setTheme: (theme) => localStorage.setItem(STORAGE_KEYS.THEME, theme),
+
+  // People (Supabase)
+  async getPeople() {
+    const [peopleRes, drinksRes] = await Promise.all([
+      supabase.from('people').select('*').order('created_at'),
+      supabase.from('drinks').select('*'),
+    ]);
+    if (peopleRes.error) throw peopleRes.error;
+    if (drinksRes.error) throw drinksRes.error;
+    const drinks = drinksRes.data || [];
+    return (peopleRes.data || []).map((p) =>
+      buildPerson(p, drinks.filter((d) => d.person_id === p.id))
+    );
   },
 
-  saveUser: (user) => {
-    localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(user));
+  async createPerson(person) {
+    const { data, error } = await supabase
+      .from('people')
+      .insert({ name: person.name, avatar: person.avatar })
+      .select()
+      .single();
+    if (error) throw error;
+    return { ...data, drinks: {} };
   },
 
-  getDrinks: () => {
-    const drinks = localStorage.getItem(STORAGE_KEYS.DRINKS);
-    return drinks ? JSON.parse(drinks) : {};
+  async updatePerson(id, updates) {
+    const { error } = await supabase
+      .from('people')
+      .update(updates)
+      .eq('id', id);
+    if (error) throw error;
+    return getPerson(id);
   },
 
-  saveDrinks: (drinks) => {
-    localStorage.setItem(STORAGE_KEYS.DRINKS, JSON.stringify(drinks));
+  async removePerson(id) {
+    const { error } = await supabase.from('people').delete().eq('id', id);
+    if (error) throw error;
   },
 
-  addDrink: (date, drink) => {
-    const drinks = storageService.getDrinks();
-    if (!drinks[date]) {
-      drinks[date] = [];
-    }
-    drinks[date].push({
-      ...drink,
-      id: Date.now(),
-      timestamp: new Date().toISOString(),
+  // Drinks (Supabase)
+  async addDrink(personId, date, drink) {
+    const { error } = await supabase.from('drinks').insert({
+      person_id: personId,
+      date,
+      name: drink.name,
+      icon: drink.icon,
+      volume: drink.volume,
+      abv: drink.abv,
+      alcohol: drink.alcohol,
+      beer_liters: drink.beerLiters,
     });
-    storageService.saveDrinks(drinks);
-    return drinks;
+    if (error) throw error;
+    return getPerson(personId);
   },
 
-  removeDrink: (date, drinkId) => {
-    const drinks = storageService.getDrinks();
-    if (drinks[date]) {
-      drinks[date] = drinks[date].filter(d => d.id !== drinkId);
-      if (drinks[date].length === 0) {
-        delete drinks[date];
-      }
-    }
-    storageService.saveDrinks(drinks);
-    return drinks;
+  async removeDrink(personId, date, drinkId) {
+    const { error } = await supabase.from('drinks').delete().eq('id', drinkId);
+    if (error) throw error;
+    return getPerson(personId);
   },
 
-  getFriends: () => {
-    const friends = localStorage.getItem(STORAGE_KEYS.FRIENDS);
-    return friends ? JSON.parse(friends) : [];
+  async clearDrinksForDate(personId, date) {
+    const { error } = await supabase
+      .from('drinks')
+      .delete()
+      .eq('person_id', personId)
+      .eq('date', date);
+    if (error) throw error;
+    return getPerson(personId);
   },
 
-  saveFriends: (friends) => {
-    localStorage.setItem(STORAGE_KEYS.FRIENDS, JSON.stringify(friends));
-  },
-
-  addFriend: (friend) => {
-    const friends = storageService.getFriends();
-    const newFriend = {
-      ...friend,
-      id: Date.now().toString(),
-      createdAt: new Date().toISOString(),
-      drinks: {},
-    };
-    friends.push(newFriend);
-    storageService.saveFriends(friends);
-    return friends;
-  },
-
-  removeFriend: (friendId) => {
-    const friends = storageService.getFriends();
-    const updated = friends.filter(f => f.id !== friendId);
-    storageService.saveFriends(updated);
-    return updated;
-  },
-
-  addDrinkToFriend: (friendId, date, drink) => {
-    const friends = storageService.getFriends();
-    const friend = friends.find(f => f.id === friendId);
-    if (friend) {
-      if (!friend.drinks) friend.drinks = {};
-      if (!friend.drinks[date]) {
-        friend.drinks[date] = [];
-      }
-      friend.drinks[date].push({
-        ...drink,
-        id: Date.now(),
-        timestamp: new Date().toISOString(),
-      });
-      storageService.saveFriends(friends);
-    }
-    return friends;
-  },
-
-  removeDrinkFromFriend: (friendId, date, drinkId) => {
-    const friends = storageService.getFriends();
-    const friend = friends.find(f => f.id === friendId);
-    if (friend && friend.drinks && friend.drinks[date]) {
-      friend.drinks[date] = friend.drinks[date].filter(d => d.id !== drinkId);
-      if (friend.drinks[date].length === 0) {
-        delete friend.drinks[date];
-      }
-      storageService.saveFriends(friends);
-    }
-    return friends;
-  },
-
-  getTheme: () => {
-    return localStorage.getItem(STORAGE_KEYS.THEME) || 'system';
-  },
-
-  setTheme: (theme) => {
-    localStorage.setItem(STORAGE_KEYS.THEME, theme);
-  },
-
-  clear: () => {
-    Object.values(STORAGE_KEYS).forEach(key => {
-      localStorage.removeItem(key);
-    });
+  async resetAll() {
+    const { error: drinksError } = await supabase
+      .from('drinks')
+      .delete()
+      .neq('id', '00000000-0000-0000-0000-000000000000');
+    if (drinksError) throw drinksError;
+    const { error: peopleError } = await supabase
+      .from('people')
+      .delete()
+      .neq('id', '00000000-0000-0000-0000-000000000000');
+    if (peopleError) throw peopleError;
   },
 };

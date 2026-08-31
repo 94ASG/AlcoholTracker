@@ -1,85 +1,135 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
 import { storageService } from '../utils/storage';
-import { getDateKey, getWeekDates } from '../utils/drinks';
+import { supabase } from '../lib/supabase';
+import { getDateKey } from '../utils/drinks';
 
 const AppContext = createContext();
 
+// Guard against React StrictMode double-invoking the init effect in dev,
+// which would otherwise create a duplicate identity on the server.
+let initStarted = false;
+
 export const AppProvider = ({ children }) => {
   const [currentUser, setCurrentUser] = useState(null);
-  const [drinks, setDrinks] = useState({});
   const [friends, setFriends] = useState([]);
   const [theme, setThemeState] = useState('light');
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(null);
+  const [needsIdentitySetup, setNeedsIdentitySetup] = useState(false);
+  const selfIdRef = useRef(null);
 
-  useEffect(() => {
-    const storedUser = storageService.getUser();
-    const storedDrinks = storageService.getDrinks();
-    const storedFriends = storageService.getFriends();
-    const storedTheme = storageService.getTheme();
-
-    if (!storedUser) {
-      const newUser = {
-        id: Date.now().toString(),
-        name: 'Du',
-        avatar: '👤',
-        createdAt: new Date().toISOString(),
-      };
-      storageService.saveUser(newUser);
-      setCurrentUser(newUser);
-    } else {
-      setCurrentUser(storedUser);
-    }
-
-    setDrinks(storedDrinks);
-    setFriends(storedFriends);
-    setThemeState(storedTheme);
-
-    if (storedTheme === 'dark') {
-      document.documentElement.classList.add('dark');
-    }
+  const refreshPeople = useCallback(async () => {
+    const people = await storageService.getPeople();
+    const selfId = selfIdRef.current;
+    const self = people.find((p) => p.id === selfId) || null;
+    setCurrentUser(self);
+    setFriends(people.filter((p) => p.id !== selfId));
   }, []);
 
-  const updateUser = (updates) => {
-    const updated = { ...currentUser, ...updates };
+  useEffect(() => {
+    const init = async () => {
+      if (initStarted) return;
+      initStarted = true;
+
+      const storedTheme = storageService.getTheme();
+      setThemeState(storedTheme);
+      if (storedTheme === 'dark') {
+        document.documentElement.classList.add('dark');
+      }
+
+      let selfId = storageService.getSelfId();
+      selfIdRef.current = selfId;
+
+      try {
+        let people = await storageService.getPeople();
+
+        // If this browser has no identity yet, create one on the server.
+        if (!selfId || !people.find((p) => p.id === selfId)) {
+          const newSelf = await storageService.createPerson({ name: 'Du', avatar: '👤' });
+          selfId = newSelf.id;
+          selfIdRef.current = selfId;
+          storageService.saveSelfId(selfId);
+          setNeedsIdentitySetup(true);
+          people = await storageService.getPeople();
+        }
+
+        const self = people.find((p) => p.id === selfId) || null;
+        setCurrentUser(self);
+        setFriends(people.filter((p) => p.id !== selfId));
+      } catch (err) {
+        setLoadError(err.message || 'Could not connect to Supabase.');
+      } finally {
+        setLoading(false);
+      }
+    };
+    init();
+  }, []);
+
+  // Subscribe to Supabase realtime so drinks added by other people
+  // appear instantly across devices.
+  useEffect(() => {
+    if (loading) return;
+    const channel = supabase
+      .channel('tracker-changes')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'people' }, () => {
+        refreshPeople();
+      })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'drinks' }, () => {
+        refreshPeople();
+      })
+      .subscribe();
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [loading, refreshPeople]);
+
+  const updateUser = async (updates) => {
+    if (!currentUser) return;
+    const updated = await storageService.updatePerson(currentUser.id, updates);
     setCurrentUser(updated);
-    storageService.saveUser(updated);
+    if (updates.name !== undefined || updates.avatar !== undefined) {
+      setNeedsIdentitySetup(false);
+    }
   };
 
-  const addDrink = (drink) => {
+  const addDrink = async (drink) => {
+    if (!currentUser) return;
     const today = getDateKey();
-    const updated = storageService.addDrink(today, drink);
-    setDrinks(updated);
+    const updated = await storageService.addDrink(currentUser.id, today, drink);
+    setCurrentUser(updated);
   };
 
-  const removeDrink = (drinkId) => {
+  const removeDrink = async (drinkId) => {
+    if (!currentUser) return;
     const today = getDateKey();
-    const updated = storageService.removeDrink(today, drinkId);
-    setDrinks(updated);
+    const updated = await storageService.removeDrink(currentUser.id, today, drinkId);
+    setCurrentUser(updated);
   };
 
-  const addFriend = (friend) => {
-    const updated = storageService.addFriend(friend);
-    setFriends(updated);
+  const addFriend = async (friend) => {
+    const created = await storageService.createPerson(friend);
+    setFriends((prev) => [...prev, created]);
   };
 
-  const removeFriend = (friendId) => {
-    const updated = storageService.removeFriend(friendId);
-    setFriends(updated);
+  const removeFriend = async (friendId) => {
+    await storageService.removePerson(friendId);
+    setFriends((prev) => prev.filter((f) => f.id !== friendId));
   };
 
-  const addDrinkToFriend = (friendId, drink) => {
+  const addDrinkToFriend = async (friendId, drink) => {
     const today = getDateKey();
-    const updated = storageService.addDrinkToFriend(friendId, today, drink);
-    setFriends(updated);
+    const updated = await storageService.addDrink(friendId, today, drink);
+    setFriends((prev) => prev.map((f) => (f.id === friendId ? updated : f)));
   };
 
-  const removeDrinkFromFriend = (friendId, drinkId) => {
+  const removeDrinkFromFriend = async (friendId, drinkId) => {
     const today = getDateKey();
-    const updated = storageService.removeDrinkFromFriend(friendId, today, drinkId);
-    setFriends(updated);
+    const updated = await storageService.removeDrink(friendId, today, drinkId);
+    setFriends((prev) => prev.map((f) => (f.id === friendId ? updated : f)));
   };
 
   const getFriendDrinksForDate = (friendId, date) => {
-    const friend = friends.find(f => f.id === friendId);
+    const friend = friends.find((f) => f.id === friendId);
     if (!friend || !friend.drinks) return [];
     const dateKey = typeof date === 'string' ? date : getDateKey(date);
     return friend.drinks[dateKey] || [];
@@ -88,7 +138,7 @@ export const AppProvider = ({ children }) => {
   const setTheme = (newTheme) => {
     setThemeState(newTheme);
     storageService.setTheme(newTheme);
-    
+
     if (newTheme === 'dark') {
       document.documentElement.classList.add('dark');
     } else {
@@ -97,8 +147,9 @@ export const AppProvider = ({ children }) => {
   };
 
   const getDrinksForDate = (date) => {
+    if (!currentUser || !currentUser.drinks) return [];
     const dateKey = typeof date === 'string' ? date : getDateKey(date);
-    return drinks[dateKey] || [];
+    return currentUser.drinks[dateKey] || [];
   };
 
   const getTodayAlcohol = () => {
@@ -143,7 +194,7 @@ export const AppProvider = ({ children }) => {
     const today = new Date();
     const monthStart = new Date(today.getFullYear(), today.getMonth(), 1);
     const monthEnd = new Date(today.getFullYear(), today.getMonth() + 1, 0);
-    
+
     for (let date = new Date(monthStart); date <= monthEnd; date.setDate(date.getDate() + 1)) {
       const dateKey = getDateKey(date);
       const dayDrinks = getDrinksForDate(dateKey);
@@ -197,6 +248,7 @@ export const AppProvider = ({ children }) => {
   };
 
   const getLeaderboard = () => {
+    if (!currentUser) return [];
     const today = getDateKey();
     const board = [
       {
@@ -210,7 +262,7 @@ export const AppProvider = ({ children }) => {
       },
     ];
 
-    friends.forEach(friend => {
+    friends.forEach((friend) => {
       board.push({
         id: friend.id,
         name: friend.name,
@@ -225,31 +277,25 @@ export const AppProvider = ({ children }) => {
     return board.sort((a, b) => b.alcohol - a.alcohol);
   };
 
-  const clearAllDrinks = () => {
+  const clearAllDrinks = async () => {
+    if (!currentUser) return;
     const today = getDateKey();
-    const updated = { ...drinks };
-    delete updated[today];
-    setDrinks(updated);
-    storageService.saveDrinks(updated);
-    
-    const updatedFriends = friends.map(friend => {
-      const friendUpdated = { ...friend };
-      if (friendUpdated.drinks) {
-        friendUpdated.drinks = { ...friendUpdated.drinks };
-        delete friendUpdated.drinks[today];
-      }
-      return friendUpdated;
-    });
+    const updatedSelf = await storageService.clearDrinksForDate(currentUser.id, today);
+    setCurrentUser(updatedSelf);
+    const updatedFriends = await Promise.all(
+      friends.map((f) => storageService.clearDrinksForDate(f.id, today))
+    );
     setFriends(updatedFriends);
-    storageService.saveFriends(updatedFriends);
   };
 
-  const resetEverything = () => {
-    const updated = {};
-    setDrinks(updated);
+  const resetEverything = async () => {
+    await storageService.resetAll();
+    const newSelf = await storageService.createPerson({ name: 'Du', avatar: '👤' });
+    selfIdRef.current = newSelf.id;
+    storageService.saveSelfId(newSelf.id);
+    setCurrentUser(newSelf);
     setFriends([]);
-    storageService.saveDrinks(updated);
-    storageService.saveFriends([]);
+    setNeedsIdentitySetup(true);
   };
 
   return (
@@ -257,7 +303,7 @@ export const AppProvider = ({ children }) => {
       value={{
         currentUser,
         updateUser,
-        drinks,
+        drinks: currentUser?.drinks || {},
         addDrink,
         removeDrink,
         getDrinksForDate,
@@ -282,6 +328,9 @@ export const AppProvider = ({ children }) => {
         getLeaderboard,
         clearAllDrinks,
         resetEverything,
+        loading,
+        loadError,
+        needsIdentitySetup,
       }}
     >
       {children}
@@ -296,4 +345,3 @@ export const useApp = () => {
   }
   return context;
 };
-

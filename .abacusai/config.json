@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm create vite@latest *)",
+      "Bash(mkdir *)",
+      "Bash(npm install 2>& *)",
+      "Bash(sudo *)",
+      "Bash(cd /Users/hannesnemitz/Dokumente/Zeug/AlcoholTracker && node --version && npm install express concurrently 2>&1 | tail -5)"
+    ]
+  }
+}

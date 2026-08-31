@@ -29,6 +29,8 @@ AppContext (Global State)
 ├── friends []
 └── theme ('light' | 'dark')
 
+Storage: Supabase (PostgreSQL) via src/lib/supabase.js
+Realtime: Supabase Realtime (people + drinks tables)
 Consumer: All Components
 ```
 
@@ -120,14 +122,47 @@ useSwipe(onSwipeLeft, onSwipeRight)
 - `getMonthDates()` - Alle Tage des Monats
 
 ### storage.js
-- `storageService.getUser()` / `.saveUser()`
-- `storageService.getDrinks()` / `.saveDrinks()`
-- `storageService.addDrink(date, drink)`
-- `storageService.removeDrink(date, id)`
-- `storageService.getFriends()` / `.saveFriends()`
-- `storageService.addFriend(friend)`
-- `storageService.removeFriend(id)`
+- `storageService.getSelfId()` / `.saveSelfId()` - Lokale Identität (welche Person dieser Browser ist)
+- `storageService.getPeople()` - Alle Personen von Supabase
+- `storageService.createPerson(person)` - Person anlegen
+- `storageService.updatePerson(id, updates)` - Name/Avatar ändern
+- `storageService.removePerson(id)` - Person löschen
+- `storageService.addDrink(personId, date, drink)`
+- `storageService.removeDrink(personId, date, drinkId)`
+- `storageService.clearDrinksForDate(personId, date)`
+- `storageService.resetAll()`
 - `storageService.getTheme()` / `.setTheme()`
+
+### supabase.js
+- `supabase` - Initialisierter Supabase-Client (liest `VITE_SUPABASE_URL` und `VITE_SUPABASE_PUBLISHABLE_KEY` aus `.env`)
+
+## 🗄️ Datenbank-Schema (Supabase)
+
+Siehe `supabase/schema.sql`. Zwei Tabellen:
+
+### people
+```sql
+id uuid pk default gen_random_uuid()
+name text
+avatar text
+created_at timestamptz
+```
+
+### drinks
+```sql
+id uuid pk default gen_random_uuid()
+person_id uuid fk -> people(id) on delete cascade
+date text          -- YYYY-MM-DD
+name text
+icon text
+volume numeric
+abv numeric
+alcohol numeric    -- reiner Alkohol in Litern
+beer_liters numeric
+timestamp timestamptz
+```
+
+RLS ist aktiviert mit permissiven Policies für die anon-Rolle (kein Login). Beide Tabellen sind für Realtime freigegeben.
 
 ## 📊 Data Structures
 
@@ -254,9 +289,9 @@ myDrink: {
 ### localStorage Debugging
 ```javascript
 // In Console
-localStorage.getItem('alcohol_tracker_drinks')
-localStorage.getItem('alcohol_tracker_friends')
-localStorage.clear() // Alles löschen
+localStorage.getItem('alcohol_tracker_self_id') // aktuelle Identität
+localStorage.getItem('alcohol_tracker_theme')
+localStorage.clear() // Identität & Theme zurücksetzen
 ```
 
 ### Theme Testen
@@ -267,8 +302,8 @@ document.documentElement.classList.remove('dark')
 ```
 
 ### DevTools
-1. **Application** → localStorage → alle App-Keys
-2. **Network** → sollte leer sein (offline-first)
+1. **Application** → localStorage → nur Identität & Theme (Daten liegen in Supabase)
+2. **Network** → Requests an `<dein-projekt>.supabase.co`
 3. **Performance** → für Optimierungen
 
 ## 📈 Performance
@@ -281,21 +316,20 @@ document.documentElement.classList.remove('dark')
 ### Optimierungen
 - Lazy Loading nicht nötig (kleine App)
 - CSS wird via Tailwind optimiert
-- localStorage ist quasi instant
-- Keine API-Calls
+- Supabase-Client wird gebündelt (~120KB gzip)
 
 ## 🐛 Bekannte Limitations
 
-1. **Multi-Device Sync**: Nicht möglich (nur localStorage)
+1. **Identität pro Browser**: Jede Person wird über eine ID im localStorage ihres Browsers identifiziert. Wer auf einem neuen Gerät öffnet, bekommt eine neue Identität (kein Login/Account).
 2. **Offline bei erstem Visit**: Braucht min. 1 Online-Load
 3. **Max Friend Count**: Theoretisch unbegrenzt, praktisch bis ~1000
 4. **Leaderboard Ranking**: Basiert nur auf heute (nicht historisch)
+5. **Keine echte Auth**: RLS erlaubt der anon-Rolle alle Operationen (bewusst, für den Freundeskreis)
 
 ## 🚀 Mögliche Erweiterungen
 
-1. **Backend Integration**
-   - Firebase für Cloud Sync
-   - User Authentication
+1. **Backend Ausbau**
+   - Echte Authentifizierung (Supabase Auth / Login)
    - Social Sharing
 
 2. **Analytics**
@@ -332,6 +366,8 @@ document.documentElement.classList.remove('dark')
 - Tailwind CSS: https://tailwindcss.com
 - Vite Docs: https://vitejs.dev
 - MDN localStorage: https://developer.mozilla.org/en-US/docs/Web/API/Window/localStorage
+- Supabase JS Client: https://supabase.com/docs/reference/javascript/introduction
+- Supabase Realtime: https://supabase.com/docs/guides/realtime
 
 ---
 

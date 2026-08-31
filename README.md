@@ -3,7 +3,7 @@
 *100% vibe-coded*
 
 
-Eine moderne, mobile-first Web-App zum Tracking des Alkoholkonsums für dich und deine Freunde. Vollständig lokal im Browser mit localStorage.
+Eine moderne, mobile-first Web-App zum Tracking des Alkoholkonsums für dich und deine Freunde. Alle Daten werden zentral auf einem Server gespeichert, sodass mehrere Personen selbst Getränke hinzufügen können.
 
 ## Features
 
@@ -50,9 +50,28 @@ Eine moderne, mobile-first Web-App zum Tracking des Alkoholkonsums für dich und
 - **🏆 Leaderboard** - Vergleich mit Freunden (basierend auf heutigem Konsum)
 
 ### 💾 Datenspeicherung
-- **100% lokal** - Alle Daten werden in localStorage gespeichert
-- **Keine Authentifizierung erforderlich** - Kostenlos und privat
+- **Supabase (PostgreSQL)** - Alle Daten werden zentral in deinem Supabase-Projekt gespeichert
+- **Mehrere Personen** - Jede Person hat eine eigene Identität und kann selbst Getränke hinzufügen
+- **Live-Sync** - Änderungen anderer Personen erscheinen sofort (Supabase Realtime)
+- **Keine Authentifizierung erforderlich** - Kostenlos und einfach
 - **Automatische Persistierung** - Alle Änderungen werden sofort gespeichert
+
+## Einrichtung (einmalig)
+
+### 1. Supabase-Projekt anlegen
+Erstelle ein kostenloses Projekt auf [supabase.com](https://supabase.com).
+
+### 2. Datenbank-Schema anlegen
+Öffne im Supabase-Dashboard **SQL Editor → New query**, füge den Inhalt von `supabase/schema.sql` ein und führe ihn aus. Das legt die Tabellen `people` und `drinks` an, aktiviert Row Level Security und Realtime.
+
+### 3. Zugangsdaten eintragen
+Im Supabase-Dashboard unter **Project Settings → API → API Keys** findest du die Projekt-URL und deine Keys. Kopiere `.env.example` zu `.env` und trage beide ein. **Wichtig:** Verwende den **Publishable Key** (`sb_publishable_...`), nicht den Secret Key. Der Secret Key umgeht Row Level Security und wird von Supabase in Browsern abgelehnt (HTTP 401).
+
+```bash
+cp .env.example .env
+# VITE_SUPABASE_URL=https://<dein-projekt>.supabase.co
+# VITE_SUPABASE_PUBLISHABLE_KEY=sb_publishable_<dein-key>
+```
 
 ## Installation & Nutzung
 
@@ -63,7 +82,7 @@ npm install
 npm run dev
 ```
 
-Die App öffnet sich unter `http://localhost:5173`
+Die App öffnet sich unter `http://localhost:5173` und spricht direkt mit Supabase.
 
 ### Produktion
 ```bash
@@ -71,12 +90,16 @@ npm run build
 npm run preview
 ```
 
+### Für mehrere Personen
+Da die Daten in Supabase liegen, ist kein eigener Server nötig. Jede Person öffnet einfach die App (lokal oder gehostet) und wählt beim ersten Start ihren Namen und Avatar. Alle Änderungen erscheinen sofort bei allen.
+
 ## Technologie
 
 - **Frontend**: React 18 mit Vite
+- **Backend**: Supabase (PostgreSQL + Realtime)
 - **Styling**: Tailwind CSS
 - **State Management**: React Context API
-- **Storage**: localStorage
+- **Storage**: Supabase + localStorage (nur Identität & Theme)
 - **Responsive Design**: Mobile-first mit Tailwind
 
 ## Projektstruktur
@@ -163,22 +186,20 @@ src/
 
 ## Datenschutz
 
-✅ **Vollständig privat** - Keine Daten verlassen deinen Browser
+✅ **Zentral gespeichert** - Daten liegen in deinem Supabase-Projekt (nicht in einzelnen Browsern)
 ✅ **Keine Tracker** - Keine Analytics oder Third-Party Services
-✅ **Lokal gespeichert** - Alles in deinem localStorage
+✅ **Keine Accounts** - Jede Person wählt einfach einen Namen und Avatar
 
 ## Tipps & Tricks
 
-- **Daten exportieren**: Öffne DevTools → Application → localStorage
-- **Daten löschen**: Leere den localStorage in DevTools oder deaktiviere Cookies
-- **Offline-Nutzung**: App funktioniert vollständig offline nach dem ersten Load
+- **Daten exportieren**: Im Supabase-Dashboard → Table Editor → Export
+- **Daten löschen**: Im Supabase-Dashboard → Table Editor → Zeilen löschen, oder in der App "Reset"
 - **Schnell hinzufügen**: Häufig verwendete Getränke über den Quick-Add Button
 
 ## Zukünftige Features (geplant)
 
 - 📈 Erweiterte Trendanalyse
 - 🎯 Ziele und Challenges
-- 🔄 Daten-Sync zwischen Geräten
 - 📱 Progressive Web App (PWA)
 - 🔔 Erinnerungen und Notifications
 - 🌍 Multi-Sprachen Support

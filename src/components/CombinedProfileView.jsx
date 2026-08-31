@@ -28,7 +28,22 @@ export const CombinedProfileView = () => {
     getFriendTodayAlcohol,
     getFriendTodayBeerLiters,
     removeFriend,
+    loadError,
   } = useApp();
+
+  if (loadError) {
+    return (
+      <div className="pb-24 pt-4 px-4 space-y-6">
+        <div className="pt-6 text-center">
+          <p className="text-slate-600 dark:text-slate-400">Verbindung zu Supabase fehlgeschlagen.</p>
+          <p className="text-xs text-slate-500 dark:text-slate-500 mt-2 break-words">{loadError}</p>
+          <p className="text-xs text-slate-500 dark:text-slate-500 mt-2">
+            Prüfe deine VITE_SUPABASE_URL und VITE_SUPABASE_PUBLISHABLE_KEY in der .env-Datei.
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   if (!currentUser) {
     return (
