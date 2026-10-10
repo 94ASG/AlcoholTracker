@@ -136,7 +136,7 @@ export const Party = () => {
   return (
     <div className="app-container pb-32">
       {/* Top Header */}
-      <header className="sticky top-0 z-30 bg-bg/90 backdrop-blur-md border-b border-white/[0.08] px-5 py-3">
+      <header className="sticky top-0 z-30 bg-bg/90 backdrop-blur-md border-b border-white/[0.08] px-5 pb-3 pt-[calc(env(safe-area-inset-top,0px)+0.75rem)]">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <button

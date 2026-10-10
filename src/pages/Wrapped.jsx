@@ -391,7 +391,7 @@ export const Wrapped = () => {
       onTouchEnd={() => setIsPaused(false)}
     >
       {/* Top Bar: Story Progress Bars */}
-      <div className="pt-4 px-4 z-20">
+      <div className="pt-[calc(env(safe-area-inset-top,0px)+0.75rem)] px-4 z-20">
         <div className="flex gap-1.5 h-1 w-full">
           {slides.map((s, idx) => (
             <div key={s.id} className="h-full flex-1 bg-white/20 rounded-full overflow-hidden">

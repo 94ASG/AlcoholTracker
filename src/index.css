@@ -60,8 +60,9 @@
   }
 
   .bottom-sheet {
-    @apply fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-md z-50 bg-[#101018] border-t border-white/[0.12] rounded-t-3xl p-6 shadow-2xl animate-sheetUp;
-    padding-bottom: max(2rem, env(safe-area-inset-bottom, 2rem));
-    max-height: 90vh;
+    @apply fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-md z-50 bg-[#101018] border-t border-white/[0.12] rounded-t-3xl p-5 shadow-2xl animate-sheetUp flex flex-col;
+    padding-bottom: max(1.5rem, env(safe-area-inset-bottom, 1.5rem));
+    max-height: 85dvh;
+    overflow: hidden;
   }
 }

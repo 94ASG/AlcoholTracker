@@ -45,9 +45,9 @@ export const Setup = ({ onDone }) => {
   };
 
   return (
-    <div className="min-h-screen w-full max-w-md mx-auto bg-bg text-white flex flex-col justify-between p-6">
+    <div className="min-h-screen w-full max-w-md mx-auto bg-bg text-white flex flex-col justify-between px-6 pb-6 pt-[calc(env(safe-area-inset-top,0px)+1.5rem)]">
       {/* Header */}
-      <div className="pt-8 text-center">
+      <div className="text-center">
         <h1 className="display-font text-5xl tracking-wide text-white mb-2">
           Dein <span className="text-neon-lime">Profil</span>
         </h1>
@@ -87,7 +87,6 @@ export const Setup = ({ onDone }) => {
             placeholder="z.B. Alex, Tom, Lisa..."
             maxLength={25}
             className="w-full p-4 bg-surface-light border border-white/10 rounded-2xl text-white font-bold placeholder-dim focus:outline-none focus:border-neon-lime text-base transition-colors"
-            autoFocus
             required
           />
         </div>

@@ -63,12 +63,10 @@ export const InstallGate = ({ children }) => {
   }
 
   return (
-    <div className="min-h-screen w-full max-w-md mx-auto bg-bg text-white flex flex-col justify-between p-6 select-none">
+    <div className="min-h-screen w-full max-w-md mx-auto bg-bg text-white flex flex-col justify-between px-6 pb-6 pt-[calc(env(safe-area-inset-top,0px)+1.5rem)] select-none">
       {/* Header */}
-      <div className="pt-8 text-center">
-        <div className="inline-flex items-center justify-center w-20 h-20 rounded-3xl bg-neon-lime/10 border border-neon-lime/20 mb-5 shadow-glow-lime">
-          <span className="text-4xl">🍺</span>
-        </div>
+      <div className="text-center">
+        <img src="/favicon.svg" alt="Logo" className="w-16 h-16 rounded-2xl shadow-glow-lime object-cover mb-4 mx-auto" />
         <h1 className="display-font text-4xl tracking-wider text-white mb-2">
           Alcohol<span className="text-neon-lime">Tracker</span>
         </h1>

@@ -70,11 +70,11 @@ export const Home = () => {
   };
 
   return (
-    <div className="app-container p-5 pb-24">
+    <div className="app-container px-5 pb-24 pt-[calc(env(safe-area-inset-top,0px)+1.25rem)]">
       {/* Top Header */}
-      <header className="flex items-center justify-between pt-2 pb-6">
+      <header className="flex items-center justify-between pb-6">
         <div className="flex items-center gap-2.5">
-          <span className="text-2xl">🍺</span>
+          <img src="/favicon.svg" alt="Logo" className="w-8 h-8 rounded-xl shadow-glow-lime object-cover" />
           <h1 className="display-font text-3xl text-white tracking-wide leading-none">
             Alcohol<span className="text-neon-lime">Tracker</span>
           </h1>
@@ -206,18 +206,18 @@ export const Home = () => {
       {isCreateOpen && (
         <>
           <div className="sheet-backdrop" onClick={() => setIsCreateOpen(false)} />
-          <div className="bottom-sheet">
-            <div className="flex items-center justify-between pb-4 border-b border-white/[0.08]">
+          <div className="bottom-sheet flex flex-col max-h-[85dvh]">
+            <div className="flex items-center justify-between pb-3 border-b border-white/[0.08] flex-shrink-0">
               <h3 className="display-font text-3xl text-white">Party starten</h3>
               <button
                 onClick={() => setIsCreateOpen(false)}
-                className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-dim"
+                className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-dim hover:text-white"
               >
                 <X className="w-4 h-4" />
               </button>
             </div>
 
-            <form onSubmit={handleCreateParty} className="py-4 space-y-4">
+            <form onSubmit={handleCreateParty} className="py-3 space-y-4 flex-1 overflow-y-auto">
               <div>
                 <label className="block text-xs font-bold uppercase tracking-wider text-faint mb-2">
                   Party-Emoji
@@ -251,7 +251,6 @@ export const Home = () => {
                   placeholder="z.B. Geburtstagsfeier, WG-Abend..."
                   maxLength={40}
                   className="w-full p-3.5 bg-surface-light border border-white/10 rounded-2xl text-white font-bold placeholder-dim focus:outline-none focus:border-neon-lime text-sm"
-                  autoFocus
                   required
                 />
               </div>
@@ -260,13 +259,15 @@ export const Home = () => {
                 ⏰ <b>Automatisches Ende:</b> Die Party endet nach maximal 10 Stunden bzw. am nächsten Morgen um 10:00 Uhr. Danach erhalten alle den Story-Rückblick des Abends!
               </div>
 
-              <button
-                type="submit"
-                disabled={!newPartyName.trim() || creating}
-                className="btn-lime w-full py-4 text-sm font-black"
-              >
-                {creating ? 'Erstelle...' : 'Party jetzt eröffnen 🎉'}
-              </button>
+              <div className="pt-1 pb-3">
+                <button
+                  type="submit"
+                  disabled={!newPartyName.trim() || creating}
+                  className="btn-lime w-full py-4 text-sm font-black"
+                >
+                  {creating ? 'Erstelle...' : 'Party jetzt eröffnen 🎉'}
+                </button>
+              </div>
             </form>
           </div>
         </>

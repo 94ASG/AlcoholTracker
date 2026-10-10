@@ -75,7 +75,7 @@ export const Me = () => {
   };
 
   return (
-    <div className="app-container p-5 pb-24">
+    <div className="app-container px-5 pb-24 pt-[calc(env(safe-area-inset-top,0px)+1.25rem)]">
       {/* Header */}
       <header className="flex items-center justify-between pb-6 border-b border-white/[0.08]">
         <div className="flex items-center gap-3">
