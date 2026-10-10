@@ -105,7 +105,7 @@ export const PartyMenu = ({ party, isHost, onClose, onAddGuest, onEndParty }) =>
                   <div>
                     <p className="font-bold text-red-400 text-sm">Abend / Party jetzt beenden</p>
                     <p className="text-xs text-red-300/70">
-                      Schaltet das Spotify-Wrapped Leaderboard frei
+                      Schaltet den Story-Rückblick für alle frei
                     </p>
                   </div>
                 </button>

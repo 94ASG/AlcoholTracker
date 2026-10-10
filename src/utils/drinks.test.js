@@ -1,7 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import {
   calculateAlcoholGrams,
-  calculateAlcoholLiters,
   calculateBeerLiters,
   formatGrams,
   formatTimeRemaining,
@@ -40,12 +39,21 @@ describe('Alcohol Calculations', () => {
   });
 
   it('contains all required drinks in the database', () => {
-    expect(DRINKS_DB.beer).toBeDefined();
-    expect(DRINKS_DB.radler).toBeDefined();
+    expect(DRINKS_DB.beer_500).toBeDefined();
+    expect(DRINKS_DB.beer_330).toBeDefined();
+    expect(DRINKS_DB.radler_500).toBeDefined();
+    expect(DRINKS_DB.radler_330).toBeDefined();
     expect(DRINKS_DB.mischen).toBeDefined();
-    expect(DRINKS_DB.vodka).toBeDefined();
-    expect(DRINKS_DB.hubertus).toBeDefined();
     expect(DRINKS_DB.klopfer).toBeDefined();
+    expect(DRINKS_DB.hubertus).toBeDefined();
+    expect(DRINKS_DB.berentzen).toBeDefined();
+    expect(DRINKS_DB.vodka_shot).toBeDefined();
+    expect(DRINKS_DB.prosecco).toBeDefined();
+    expect(DRINKS_DB.champagne).toBeDefined();
+    expect(DRINKS_DB.wine).toBeDefined();
+    expect(DRINKS_DB.whiskey).toBeUndefined();
+    expect(DRINKS_DB.rum).toBeUndefined();
+    expect(DRINKS_DB.gin).toBeUndefined();
   });
 });
 

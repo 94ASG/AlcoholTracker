@@ -257,7 +257,7 @@ export const Home = () => {
               </div>
 
               <div className="p-3 bg-white/[0.03] rounded-2xl border border-white/5 text-[11px] text-faint leading-relaxed">
-                ⏰ <b>Automatisches Ende:</b> Die Party endet nach maximal 10 Stunden bzw. am nächsten Morgen um 10:00 Uhr. Danach erhalten alle das Spotify-Wrapped!
+                ⏰ <b>Automatisches Ende:</b> Die Party endet nach maximal 10 Stunden bzw. am nächsten Morgen um 10:00 Uhr. Danach erhalten alle den Story-Rückblick des Abends!
               </div>
 
               <button

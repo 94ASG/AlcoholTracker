@@ -3,7 +3,7 @@
 // ==============================================
 
 import React, { useState } from 'react';
-import { DRINKS_DB, SPIRITS_DB, MIX_RATIOS, MIX_SIZES, calculateAlcoholGrams } from '../../utils/drinks';
+import { DRINKS_DB, DRINKS_SECTIONS, SPIRITS_DB, MIX_RATIOS, MIX_SIZES, calculateAlcoholGrams } from '../../utils/drinks';
 import { X, Plus, Check } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
@@ -219,34 +219,65 @@ export const DrinkSheet = ({ members, currentProfile, onClose, onLog }) => {
         {/* Body */}
         <div className="flex-1 overflow-y-auto py-4">
           {viewMode === 'grid' && (
-            <div className="space-y-4">
-              <div className="grid grid-cols-3 gap-2.5">
-                {Object.entries(DRINKS_DB).map(([key, item]) => (
-                  <button
-                    key={key}
-                    onClick={() => handleTileTap(key)}
-                    className="p-3.5 bg-surface-light hover:bg-surface-hover border border-white/[0.06] hover:border-neon-lime/40 rounded-2xl flex flex-col items-center justify-center text-center transition-all active:scale-95 group"
-                  >
-                    <span className="text-3xl mb-1.5 transform group-hover:scale-110 transition-transform">
-                      {item.icon}
-                    </span>
-                    <span className="font-bold text-white text-xs leading-tight">
-                      {item.name}
-                    </span>
-                    <span className="font-mono text-[10px] text-faint mt-0.5">
-                      {item.isCustomMix ? 'Konfigurierbar' : `${item.volume}ml · ${item.defaultAbv}%`}
-                    </span>
-                  </button>
-                ))}
-              </div>
+            <div className="space-y-5">
+              {DRINKS_SECTIONS.map((section, sIdx) => (
+                <div key={section.id} className={sIdx > 0 ? 'pt-4 border-t border-white/[0.08]' : ''}>
+                  <div className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-faint mb-2.5">
+                    <span>{section.icon}</span>
+                    <span>{section.title}</span>
+                  </div>
 
-              <button
-                onClick={() => setViewMode('custom')}
-                className="w-full py-3 px-4 rounded-xl border border-dashed border-white/15 bg-white/[0.02] hover:bg-white/[0.05] text-dim hover:text-white text-xs font-bold flex items-center justify-center gap-2 transition-colors"
-              >
-                <Plus className="w-4 h-4 text-neon-lime" />
-                <span>Anderes / Eigenes Getränk eintragen</span>
-              </button>
+                  {section.id === 'mix' ? (
+                    <button
+                      onClick={() => setViewMode('mix')}
+                      className="w-full p-3.5 bg-surface-light hover:bg-surface-hover border border-white/[0.08] hover:border-neon-lime/40 rounded-2xl flex items-center justify-between text-left transition-all active:scale-[0.98] group"
+                    >
+                      <div className="flex items-center gap-3">
+                        <span className="text-3xl transform group-hover:scale-110 transition-transform">🥤</span>
+                        <div>
+                          <p className="font-bold text-white text-xs">Mischen konfigurieren</p>
+                          <p className="text-[10px] text-dim">Wodka, Korn, Springer · Verhältnis & Glasgröße</p>
+                        </div>
+                      </div>
+                      <span className="px-2.5 py-1 rounded-xl bg-neon-lime/10 text-neon-lime text-[11px] font-bold">
+                        Öffnen &rarr;
+                      </span>
+                    </button>
+                  ) : (
+                    <div className="grid grid-cols-2 gap-2">
+                      {section.drinks.map((item) => (
+                        <button
+                          key={item.key}
+                          onClick={() => handleTileTap(item.key)}
+                          className="p-3 bg-surface-light hover:bg-surface-hover border border-white/[0.06] hover:border-neon-lime/40 rounded-2xl flex items-center gap-2.5 text-left transition-all active:scale-95 group"
+                        >
+                          <span className="text-2xl transform group-hover:scale-110 transition-transform flex-shrink-0">
+                            {item.icon}
+                          </span>
+                          <div className="min-w-0 flex-1">
+                            <p className="font-bold text-white text-xs leading-tight truncate">
+                              {item.name}
+                            </p>
+                            <p className="font-mono text-[10px] text-faint mt-0.5">
+                              {item.volume}ml · {item.defaultAbv}%
+                            </p>
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              ))}
+
+              <div className="pt-4 border-t border-white/[0.08]">
+                <button
+                  onClick={() => setViewMode('custom')}
+                  className="w-full py-3 px-4 rounded-xl border border-dashed border-white/15 bg-white/[0.02] hover:bg-white/[0.05] text-dim hover:text-white text-xs font-bold flex items-center justify-center gap-2 transition-colors"
+                >
+                  <Plus className="w-4 h-4 text-neon-lime" />
+                  <span>Anderes / Eigenes Getränk eintragen</span>
+                </button>
+              </div>
             </div>
           )}
 

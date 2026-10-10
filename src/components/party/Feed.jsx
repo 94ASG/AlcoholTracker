@@ -46,12 +46,31 @@ export const Feed = ({ drinks, reactions, members, currentProfile, onToggleReact
           drink: d,
           drinkIds: [d.id],
           profileId: d.profile_id,
+          loggedBy: d.logged_by,
           createdAt: d.created_at,
         });
       }
     });
 
-    const combined = [...Array.from(rounds.values()), ...singles];
+    // Nur echte Runden mit > 1 Personen als Runde behandeln
+    const actualRounds = [];
+    rounds.forEach((r) => {
+      if (r.recipients.length > 1) {
+        actualRounds.push(r);
+      } else {
+        singles.push({
+          type: 'single',
+          id: r.drinkIds[0],
+          drink: r.drink,
+          drinkIds: r.drinkIds,
+          profileId: r.recipients[0],
+          loggedBy: r.loggedBy,
+          createdAt: r.createdAt,
+        });
+      }
+    });
+
+    const combined = [...actualRounds, ...singles];
     combined.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
     return combined;
   }, [drinks]);
@@ -85,7 +104,7 @@ export const Feed = ({ drinks, reactions, members, currentProfile, onToggleReact
         return (
           <div key={item.id} className="glass-card p-3.5 border-white/[0.06]">
             {item.type === 'round' ? (
-              // RUNDE AUSGEGEBEN
+              // RUNDE AUSGEGEBEN (MEHRERE PERSONEN)
               (() => {
                 const hostProfile = memberMap.get(item.loggedBy) || { name: 'Jemand', emoji: '👤' };
                 const isMeHost = item.loggedBy === currentProfile?.id;
@@ -105,7 +124,7 @@ export const Feed = ({ drinks, reactions, members, currentProfile, onToggleReact
                           hat eine Runde{' '}
                           <span className="font-bold text-white">{item.drink.name}</span> für{' '}
                           <span className="font-bold text-neon-lime">
-                            {item.recipients.length} Leute
+                            {item.recipients.length} Personen
                           </span>{' '}
                           ausgegeben! 🎉
                         </p>
@@ -138,6 +157,44 @@ export const Feed = ({ drinks, reactions, members, currentProfile, onToggleReact
               (() => {
                 const drinker = memberMap.get(item.profileId) || { name: 'Jemand', emoji: '👤' };
                 const isMe = item.profileId === currentProfile?.id;
+                const isLoggedByOther = item.loggedBy && item.loggedBy !== item.profileId;
+                const logger = memberMap.get(item.loggedBy) || { name: 'Jemand', emoji: '👤' };
+
+                let actionText;
+                if (isMe) {
+                  if (isLoggedByOther) {
+                    actionText = (
+                      <>
+                        <span className="font-bold text-white">{logger.name}</span> hat dir ein{' '}
+                        <span className="font-bold text-neon-lime">{item.drink.name}</span> eingetragen
+                      </>
+                    );
+                  } else {
+                    actionText = (
+                      <>
+                        <span className="font-bold text-white">Du</span> trinkst{' '}
+                        <span className="font-bold text-neon-lime">{item.drink.name}</span>
+                      </>
+                    );
+                  }
+                } else {
+                  if (item.loggedBy === currentProfile?.id) {
+                    actionText = (
+                      <>
+                        <span className="font-bold text-white">Du</span> hast für{' '}
+                        <span className="font-bold text-white">{drinker.name}</span> ein{' '}
+                        <span className="font-bold text-neon-lime">{item.drink.name}</span> eingetragen
+                      </>
+                    );
+                  } else {
+                    actionText = (
+                      <>
+                        <span className="font-bold text-white">{drinker.name}</span> trinkt{' '}
+                        <span className="font-bold text-neon-lime">{item.drink.name}</span>
+                      </>
+                    );
+                  }
+                }
 
                 return (
                   <div className="flex items-start gap-2.5">
@@ -148,10 +205,7 @@ export const Feed = ({ drinks, reactions, members, currentProfile, onToggleReact
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between">
                         <p className="text-xs text-white">
-                          <span className="font-bold text-white">
-                            {drinker.emoji} {isMe ? 'Du' : drinker.name}
-                          </span>{' '}
-                          trinkt <span className="font-bold text-neon-lime">{item.drink.name}</span>
+                          {actionText}
                         </p>
                         <span className="font-mono text-[10px] font-bold text-neon-lime ml-2">
                           +{formatGrams(item.drink.alcohol_g)}g

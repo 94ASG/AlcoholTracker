@@ -163,7 +163,13 @@ begin
 end;
 $$ language plpgsql;
 
--- 10. Row Level Security
+-- 10. Row Level Security & Grants
+grant all on table public.profiles to anon, authenticated;
+grant all on table public.parties to anon, authenticated;
+grant all on table public.party_members to anon, authenticated;
+grant all on table public.drinks to anon, authenticated;
+grant all on table public.reactions to anon, authenticated;
+
 alter table public.profiles enable row level security;
 alter table public.parties enable row level security;
 alter table public.party_members enable row level security;
@@ -172,14 +178,24 @@ alter table public.reactions enable row level security;
 alter table public.push_subscriptions enable row level security;
 
 -- Da die App ohne Passwort-Login für Freunde funktioniert, offene Anon-Policies:
-create policy "profiles all" on public.profiles for all using (true) with check (true);
-create policy "parties all" on public.parties for all using (true) with check (true);
-create policy "party_members all" on public.party_members for all using (true) with check (true);
-create policy "drinks all" on public.drinks for all using (true) with check (true);
-create policy "reactions all" on public.reactions for all using (true) with check (true);
+drop policy if exists "profiles all" on public.profiles;
+create policy "profiles all" on public.profiles for all to anon, authenticated using (true) with check (true);
+
+drop policy if exists "parties all" on public.parties;
+create policy "parties all" on public.parties for all to anon, authenticated using (true) with check (true);
+
+drop policy if exists "party_members all" on public.party_members;
+create policy "party_members all" on public.party_members for all to anon, authenticated using (true) with check (true);
+
+drop policy if exists "drinks all" on public.drinks;
+create policy "drinks all" on public.drinks for all to anon, authenticated using (true) with check (true);
+
+drop policy if exists "reactions all" on public.reactions;
+create policy "reactions all" on public.reactions for all to anon, authenticated using (true) with check (true);
 
 -- Push Subscriptions dürfen vom Client NICHT ausgelesen werden (Datenschutz):
-create policy "push_subscriptions insert" on public.push_subscriptions for insert with check (true);
+drop policy if exists "push_subscriptions insert" on public.push_subscriptions;
+create policy "push_subscriptions insert" on public.push_subscriptions for insert to anon, authenticated with check (true);
 
 -- 11. Realtime aktivieren
 alter publication supabase_realtime add table public.parties;

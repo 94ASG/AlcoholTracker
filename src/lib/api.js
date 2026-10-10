@@ -190,7 +190,8 @@ export const api = {
   },
 
   async logDrinksBatch({ partyId, profileIds, loggedBy, drink }) {
-    const roundId = crypto.randomUUID();
+    const isRound = profileIds.length > 1;
+    const roundId = isRound ? crypto.randomUUID() : null;
     const alcoholG = calculateAlcoholGrams(drink.volume, drink.abv);
     const beerLiters = calculateBeerLiters(drink.volume, drink.beerFactor || 0);
 
