@@ -81,6 +81,10 @@ export const Guide = () => {
           desc: 'Du holst Bier an der Bar? Wähle einfach alle Freunde an und trage die Runde mit einem Klick für die ganze Truppe ein.',
         },
         {
+          heading: 'Vergessen? Nachtragen ohne Reue',
+          desc: 'Du hast vorhin vergessen zu tracken? Wähle im Menü einfach „Vor 30 Min“ oder „Vor 1 Std“, damit der zeitliche Verlauf exakt stimmt.',
+        },
+        {
           heading: '5 Sekunden Rückgängig (Undo)',
           desc: 'Aus Versehen vertippt? Direkt nach jedem Eintrag erscheint 5 Sekunden lang ein praktischer Undo-Button.',
         },
@@ -88,7 +92,7 @@ export const Guide = () => {
       preview: (
         <div className="bg-surface-light border border-white/5 rounded-2xl p-3 space-y-2 text-xs">
           <div className="flex items-center justify-between text-[11px] text-faint font-bold uppercase tracking-wider">
-            <span>Schnellauswahl</span>
+            <span>Schnellauswahl & Nachtragen</span>
             <span className="text-neon-lime">1-Tap</span>
           </div>
           <div className="grid grid-cols-2 gap-2">
@@ -113,23 +117,23 @@ export const Guide = () => {
     {
       id: 'ranking',
       number: '03',
-      badge: 'Fair & Transparent',
-      title: 'Faires Live-Ranking',
+      badge: 'Fair & Gamified',
+      title: 'Faires Live-Ranking & Badges',
       icon: Trophy,
       color: '#FF2E93',
-      summary: 'Vergleich nach reinem Alkohol (Gramm) statt reiner Gläserzahl.',
+      summary: 'Vergleich nach reinem Alkohol (Gramm), dynamische Titel & Gruppen-Ziele.',
       points: [
         {
           heading: 'Wissenschaftlich fair berechnet',
           desc: 'Ein Shot und ein großes Bier sind nicht dasselbe. Die App berechnet den exakten Reinalkohol: Volumen (ml) × Vol.-% × 0.8 / 100.',
         },
         {
-          heading: 'Live-Balken & Bier-Äquivalent',
-          desc: 'Sieh in Echtzeit, wer die Tabelle anführt, inklusive relativer Fortschrittsbalken und Umrechnung in Standard-Bier.',
+          heading: 'Dynamische Live-Titel (Badges)',
+          desc: 'Wandern im Laufe des Abends: 👑 Bierkönig, ⚡ Shot-Maschine, 🤝 Spendierhose und 🚀 Frühstarter belohnen Aktivität sofort!',
         },
         {
-          heading: 'Team-Statistiken',
-          desc: 'Oben im Ranking seht ihr immer den Gesamtkonsum der ganzen Party auf einen Blick.',
+          heading: 'Kollektive Gruppen-Meilensteine',
+          desc: 'Oben im Leaderboard seht ihr den Gruppen-Fortschrittsbalken. Bei 25g, 50g oder 100g gibt es Live-Konfetti für alle im Raum!',
         },
       ],
       preview: (

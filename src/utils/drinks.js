@@ -205,3 +205,166 @@ export const formatTimeRemaining = (endsAtDate) => {
   }
   return `${diffHours}h ${diffMinutes}m`;
 };
+
+// ==============================================
+// Gruppen-Meilensteine
+// ==============================================
+export const PARTY_MILESTONES = [
+  { target: 25, title: 'Warm-Up geschafft!', icon: '🍻', desc: 'Die ersten Runden laufen' },
+  { target: 50, title: '50g Club geknackt!', icon: '🔥', desc: 'Die Stimmung nimmt Fahrt auf' },
+  { target: 100, title: '100g Reinalkohol Legenden!', icon: '🚀', desc: 'Party-Modus auf Anschlag' },
+  { target: 200, title: '200g Party-Monster!', icon: '⚡', desc: 'Absolute Abriss-Stimmung' },
+  { target: 350, title: '350g Olymp der Trinker!', icon: '👑', desc: 'Geschichtsträchtiger Abend' },
+  { target: 500, title: '500g Halbe-Kilo-Club!', icon: '💥', desc: 'Legendärer Kater garantiert' },
+];
+
+export const getGroupMilestoneInfo = (totalAlcoholGrams = 0) => {
+  const currentTotal = Number(totalAlcoholGrams) || 0;
+
+  const next = PARTY_MILESTONES.find((m) => m.target > currentTotal) || {
+    target: Math.ceil((currentTotal + 50) / 50) * 50,
+    title: 'Party-Überflieger!',
+    icon: '✨',
+    desc: 'Unaufhaltsame Truppe',
+  };
+
+  const prevMilestone = [...PARTY_MILESTONES]
+    .reverse()
+    .find((m) => m.target <= currentTotal);
+
+  const prevTarget = prevMilestone ? prevMilestone.target : 0;
+  const range = Math.max(1, next.target - prevTarget);
+  const progressInRange = Math.max(0, currentTotal - prevTarget);
+  const percent = Math.min(100, Math.max(0, Math.round((progressInRange / range) * 100)));
+  const gramsRemaining = Math.max(0, Math.round(next.target - currentTotal));
+
+  return {
+    currentTotal,
+    nextMilestone: next,
+    prevMilestone,
+    percent,
+    gramsRemaining,
+    achievedCount: PARTY_MILESTONES.filter((m) => currentTotal >= m.target).length,
+  };
+};
+
+// ==============================================
+// Dynamische Live-Titel (Badges)
+// ==============================================
+export const computeBadges = (drinks = [], members = []) => {
+  const badgeMap = new Map();
+  if (!members || members.length === 0) return badgeMap;
+
+  members.forEach((m) => badgeMap.set(m.id, []));
+  if (!drinks || drinks.length === 0) return badgeMap;
+
+  // 1. Frühstarter (ältester Drink)
+  const sortedChronological = [...drinks].sort(
+    (a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+  );
+  if (sortedChronological.length > 0) {
+    const first = sortedChronological[0];
+    const userBadges = badgeMap.get(first.profile_id);
+    if (userBadges) {
+      userBadges.push({
+        id: 'early_bird',
+        icon: '🚀',
+        label: 'Frühstarter',
+        color: '#00F0FF',
+      });
+    }
+  }
+
+  // Aggregierte Statistiken
+  const stats = new Map();
+  members.forEach((m) => {
+    stats.set(m.id, {
+      beerLiters: 0,
+      shotsCount: 0,
+      roundsGiven: 0,
+    });
+  });
+
+  const countedRounds = new Set();
+
+  drinks.forEach((d) => {
+    const userStat = stats.get(d.profile_id);
+    if (userStat) {
+      if (d.category === 'beer') {
+        userStat.beerLiters += Number(d.beer_liters) || (d.volume_ml ? d.volume_ml / 1000 : 0);
+      } else if (d.category === 'shot') {
+        userStat.shotsCount += 1;
+      }
+    }
+
+    // Spendierhose
+    if (d.logged_by && d.logged_by !== d.profile_id) {
+      const loggerStat = stats.get(d.logged_by);
+      if (loggerStat) {
+        loggerStat.roundsGiven += 1;
+      }
+    } else if (d.round_id && !countedRounds.has(d.round_id)) {
+      countedRounds.add(d.round_id);
+      const loggerStat = stats.get(d.logged_by);
+      if (loggerStat) {
+        loggerStat.roundsGiven += 1;
+      }
+    }
+  });
+
+  // Bierkönig (mind. 0.5 Liter)
+  let maxBeer = 0.5;
+  let beerKingId = null;
+  stats.forEach((s, pid) => {
+    if (s.beerLiters >= maxBeer) {
+      maxBeer = s.beerLiters;
+      beerKingId = pid;
+    }
+  });
+  if (beerKingId) {
+    badgeMap.get(beerKingId)?.push({
+      id: 'beer_king',
+      icon: '👑',
+      label: 'Bierkönig',
+      color: '#FFB800',
+    });
+  }
+
+  // Shot-Maschine (mind. 2 Shots)
+  let maxShots = 2;
+  let shotMachineId = null;
+  stats.forEach((s, pid) => {
+    if (s.shotsCount >= maxShots) {
+      maxShots = s.shotsCount;
+      shotMachineId = pid;
+    }
+  });
+  if (shotMachineId) {
+    badgeMap.get(shotMachineId)?.push({
+      id: 'shot_machine',
+      icon: '⚡',
+      label: 'Shot-Maschine',
+      color: '#FF2E93',
+    });
+  }
+
+  // Spendierhose (mind. 1 Runde oder Spendier-Drink)
+  let maxRounds = 1;
+  let spendierhoseId = null;
+  stats.forEach((s, pid) => {
+    if (s.roundsGiven >= maxRounds) {
+      maxRounds = s.roundsGiven;
+      spendierhoseId = pid;
+    }
+  });
+  if (spendierhoseId) {
+    badgeMap.get(spendierhoseId)?.push({
+      id: 'spendierhose',
+      icon: '🤝',
+      label: 'Spendierhose',
+      color: '#C6FF3D',
+    });
+  }
+
+  return badgeMap;
+};

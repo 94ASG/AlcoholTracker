@@ -2,14 +2,25 @@
 // AlcoholTracker 2.0: Party Leaderboard
 // ==============================================
 
-import React, { useState } from 'react';
-import { formatGrams } from '../../utils/drinks';
+import React, { useState, useMemo } from 'react';
+import { formatGrams, computeBadges, getGroupMilestoneInfo } from '../../utils/drinks';
 import { Crown, Trash2, ChevronDown, ChevronUp } from 'lucide-react';
 
-export const Leaderboard = ({ leaderboard, drinks, currentProfile, onDeleteDrink }) => {
+export const Leaderboard = ({ leaderboard, drinks = [], currentProfile, onDeleteDrink }) => {
   const [expandedId, setExpandedId] = useState(null);
 
   const leaderMaxAlcohol = leaderboard.length > 0 ? Math.max(1, leaderboard[0].totalAlcoholGrams) : 1;
+
+  // Dynamische Badges
+  const members = useMemo(() => leaderboard.map((l) => l.profile), [leaderboard]);
+  const badgeMap = useMemo(() => computeBadges(drinks, members), [drinks, members]);
+
+  // Gruppen-Meilenstein
+  const totalGroupAlcohol = useMemo(() => {
+    return drinks.reduce((sum, d) => sum + (Number(d.alcohol_g) || 0), 0);
+  }, [drinks]);
+
+  const milestone = useMemo(() => getGroupMilestoneInfo(totalGroupAlcohol), [totalGroupAlcohol]);
 
   const toggleExpand = (profileId) => {
     setExpandedId(expandedId === profileId ? null : profileId);
@@ -25,6 +36,40 @@ export const Leaderboard = ({ leaderboard, drinks, currentProfile, onDeleteDrink
 
   return (
     <div className="space-y-3">
+      {/* Kollektives Gruppen-Ziel / Meilenstein */}
+      <div className="card p-4 bg-gradient-to-br from-[#18182C] via-surface to-[#10101C] border border-white/10 space-y-2.5 shadow-xl">
+        <div className="flex items-center justify-between text-xs">
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-xl bg-neon-lime/10 border border-neon-lime/20 flex items-center justify-center text-lg flex-shrink-0">
+              {milestone.nextMilestone.icon}
+            </div>
+            <div>
+              <div className="flex items-center gap-1.5">
+                <span className="font-bold text-white text-xs">
+                  {milestone.nextMilestone.title}
+                </span>
+                <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-white/10 text-dim">
+                  Ziel: {milestone.nextMilestone.target}g
+                </span>
+              </div>
+              <p className="text-[11px] text-dim">
+                Noch {milestone.gramsRemaining}g Reinalkohol bis zum Meilenstein 🔥
+              </p>
+            </div>
+          </div>
+          <span className="font-mono font-bold text-neon-lime text-xs">
+            {milestone.percent}%
+          </span>
+        </div>
+
+        {/* Progress Bar */}
+        <div className="h-2 w-full bg-white/5 rounded-full overflow-hidden p-0.5 border border-white/5">
+          <div
+            className="h-full bg-gradient-to-r from-neon-lime via-[#E2FF66] to-neon-pink rounded-full transition-all duration-500"
+            style={{ width: `${milestone.percent}%` }}
+          />
+        </div>
+      </div>
       {leaderboard.map((item) => {
         const isMe = item.profile.id === currentProfile?.id;
         const isLeader = item.rank === 1 && item.totalAlcoholGrams > 0;
@@ -33,6 +78,7 @@ export const Leaderboard = ({ leaderboard, drinks, currentProfile, onDeleteDrink
 
         // Drinks für dieses Profil
         const userDrinks = drinks.filter((d) => d.profile_id === item.profile.id);
+        const userBadges = badgeMap.get(item.profile.id) || [];
 
         return (
           <div
@@ -116,6 +162,26 @@ export const Leaderboard = ({ leaderboard, drinks, currentProfile, onDeleteDrink
                     style={{ width: `${percentOfLeader}%` }}
                   />
                 </div>
+
+                {/* Dynamic Badges */}
+                {userBadges.length > 0 && (
+                  <div className="flex flex-wrap gap-1 mt-1.5">
+                    {userBadges.map((b) => (
+                      <span
+                        key={b.id}
+                        className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md text-[10px] font-bold border leading-none"
+                        style={{
+                          backgroundColor: `${b.color}18`,
+                          borderColor: `${b.color}35`,
+                          color: b.color,
+                        }}
+                      >
+                        <span>{b.icon}</span>
+                        <span>{b.label}</span>
+                      </span>
+                    ))}
+                  </div>
+                )}
               </div>
 
               {/* Gramm Alkohol rechts */}

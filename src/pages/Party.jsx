@@ -2,7 +2,7 @@
 // AlcoholTracker 2.0: Party Screen (Ranking & Feed)
 // ==============================================
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useParty } from '../hooks/useParty';
 import { useProfile } from '../context/ProfileContext';
@@ -11,7 +11,7 @@ import { Feed } from '../components/party/Feed';
 import { DrinkSheet } from '../components/party/DrinkSheet';
 import { PartyMenu } from '../components/party/PartyMenu';
 import { UndoToast } from '../components/party/UndoToast';
-import { formatTimeRemaining } from '../utils/drinks';
+import { formatTimeRemaining, getGroupMilestoneInfo } from '../utils/drinks';
 import { ArrowLeft, MoreVertical, Plus, Sparkles } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
@@ -28,6 +28,7 @@ export const Party = () => {
     leaderboard,
     lastDrinkOfUser,
     totalPartyDrinks,
+    totalPartyAlcoholGrams,
     loading,
     error,
     isHost,
@@ -47,6 +48,27 @@ export const Party = () => {
   // Countdown State
   const [timeRemaining, setTimeRemaining] = useState('');
 
+  // Gruppen-Meilenstein Konfetti
+  const prevAchievedRef = useRef(null);
+  const milestoneInfo = useMemo(() => getGroupMilestoneInfo(totalPartyAlcoholGrams), [totalPartyAlcoholGrams]);
+
+  useEffect(() => {
+    if (loading) return;
+    if (prevAchievedRef.current === null) {
+      prevAchievedRef.current = milestoneInfo.achievedCount;
+      return;
+    }
+    if (milestoneInfo.achievedCount > prevAchievedRef.current) {
+      confetti({
+        particleCount: 75,
+        spread: 90,
+        origin: { y: 0.55 },
+        colors: ['#C6FF3D', '#FF2E93', '#FFB800'],
+      });
+      prevAchievedRef.current = milestoneInfo.achievedCount;
+    }
+  }, [milestoneInfo.achievedCount, loading]);
+
   useEffect(() => {
     if (!party?.ends_at) return;
     const updateCountdown = () => {
@@ -62,9 +84,9 @@ export const Party = () => {
     navigate(`/p/${id}/wrapped`);
   };
 
-  const handleLogDrinks = async ({ profileIds, drink }) => {
+  const handleLogDrinks = async ({ profileIds, drink, createdAt }) => {
     try {
-      const logged = await logDrink({ profileIds, drink });
+      const logged = await logDrink({ profileIds, drink, createdAt });
       if (logged && logged.length > 0) {
         setUndoItem({
           drinkIds: logged.map((d) => d.id),

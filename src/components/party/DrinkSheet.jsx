@@ -23,6 +23,14 @@ export const DrinkSheet = ({ members, currentProfile, onClose, onLog }) => {
   const [customIcon, setCustomIcon] = useState('🍹');
   const [customBeerFactor, setCustomBeerFactor] = useState(0);
 
+  // Zeitpunkt für nachträgliches Eintragen (in Minuten)
+  const [timeOffsetMinutes, setTimeOffsetMinutes] = useState(0);
+
+  const getSelectedCreatedAt = () => {
+    if (!timeOffsetMinutes) return undefined;
+    return new Date(Date.now() - timeOffsetMinutes * 60 * 1000).toISOString();
+  };
+
   // Trigger Haptic Feedback wenn auf Smartphone
   const triggerHaptic = () => {
     if (window.navigator?.vibrate) {
@@ -73,6 +81,7 @@ export const DrinkSheet = ({ members, currentProfile, onClose, onLog }) => {
 
     onLog({
       profileIds: selectedProfileIds,
+      createdAt: getSelectedCreatedAt(),
       drink: {
         key: item.key,
         name: item.name,
@@ -98,6 +107,7 @@ export const DrinkSheet = ({ members, currentProfile, onClose, onLog }) => {
 
     onLog({
       profileIds: selectedProfileIds,
+      createdAt: getSelectedCreatedAt(),
       drink: {
         key: 'mischen',
         name: `Mischen ${spirit.name} (${ratioObj.value})`,
@@ -122,6 +132,7 @@ export const DrinkSheet = ({ members, currentProfile, onClose, onLog }) => {
 
     onLog({
       profileIds: selectedProfileIds,
+      createdAt: getSelectedCreatedAt(),
       drink: {
         key: 'custom',
         name: customName.trim(),
@@ -213,6 +224,44 @@ export const DrinkSheet = ({ members, currentProfile, onClose, onLog }) => {
                 </button>
               );
             })}
+          </div>
+        </div>
+
+        {/* Zeitpunkt (Jetzt vs. Nachtragen) */}
+        <div className="py-2.5 px-0.5 border-b border-white/[0.08] flex items-center justify-between flex-shrink-0">
+          <div className="flex items-center gap-1.5">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-faint">
+              Zeitpunkt
+            </span>
+            {timeOffsetMinutes > 0 && (
+              <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-neon-pink/15 text-neon-pink font-bold border border-neon-pink/20">
+                Nachtragen
+              </span>
+            )}
+          </div>
+
+          <div className="flex gap-1 bg-surface-light p-0.5 rounded-xl border border-white/5 text-[11px]">
+            {[
+              { id: 0, label: 'Jetzt ⚡' },
+              { id: 30, label: 'Vor 30 Min' },
+              { id: 60, label: 'Vor 1 Std' },
+            ].map((t) => (
+              <button
+                key={t.id}
+                type="button"
+                onClick={() => {
+                  triggerHaptic();
+                  setTimeOffsetMinutes(t.id);
+                }}
+                className={`px-2.5 py-1 rounded-lg font-bold transition-all ${
+                  timeOffsetMinutes === t.id
+                    ? 'bg-neon-lime text-black font-extrabold shadow-sm'
+                    : 'text-dim hover:text-white'
+                }`}
+              >
+                {t.label}
+              </button>
+            ))}
           </div>
         </div>
 

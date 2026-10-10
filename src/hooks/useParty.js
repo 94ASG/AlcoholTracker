@@ -140,7 +140,7 @@ export const useParty = (partyId) => {
   }, [drinks]);
 
   // Aktionen
-  const logDrink = async ({ profileIds, drink }) => {
+  const logDrink = async ({ profileIds, drink, createdAt }) => {
     if (!profile) return;
     const targetIds = profileIds && profileIds.length > 0 ? profileIds : [profile.id];
     
@@ -150,6 +150,7 @@ export const useParty = (partyId) => {
       profileIds: targetIds,
       loggedBy: profile.id,
       drink,
+      createdAt,
     });
 
     if (res) {

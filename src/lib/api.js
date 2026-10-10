@@ -189,7 +189,7 @@ export const api = {
     return data || [];
   },
 
-  async logDrinksBatch({ partyId, profileIds, loggedBy, drink }) {
+  async logDrinksBatch({ partyId, profileIds, loggedBy, drink, createdAt }) {
     const isRound = profileIds.length > 1;
     const roundId = isRound ? crypto.randomUUID() : null;
     const alcoholG = calculateAlcoholGrams(drink.volume, drink.abv);
@@ -208,6 +208,7 @@ export const api = {
       abv: drink.abv,
       alcohol_g: alcoholG,
       beer_liters: beerLiters,
+      ...(createdAt ? { created_at: createdAt } : {}),
     }));
 
     const { data, error } = await supabase
