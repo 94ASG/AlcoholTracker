@@ -48,8 +48,8 @@ export const PartyMenu = ({ party, isHost, onClose, onAddGuest, onEndParty }) =>
   return (
     <>
       <div className="sheet-backdrop" onClick={onClose} />
-      <div className="bottom-sheet">
-        <div className="flex items-center justify-between pb-4 border-b border-white/[0.08]">
+      <div className="bottom-sheet flex flex-col max-h-[85dvh]">
+        <div className="flex items-center justify-between pb-4 border-b border-white/[0.08] flex-shrink-0">
           <h3 className="display-font text-2xl text-white">Party-Optionen</h3>
           <button
             onClick={onClose}
@@ -59,7 +59,7 @@ export const PartyMenu = ({ party, isHost, onClose, onAddGuest, onEndParty }) =>
           </button>
         </div>
 
-        <div className="py-4">
+        <div className="py-4 flex-1 overflow-y-auto">
           {mode === 'menu' && (
             <div className="space-y-2.5">
               {/* Teilen */}
@@ -148,7 +148,7 @@ export const PartyMenu = ({ party, isHost, onClose, onAddGuest, onEndParty }) =>
                   onChange={(e) => setGuestName(e.target.value)}
                   placeholder="z.B. Lukas"
                   className="w-full p-3 bg-surface-light border border-white/10 rounded-xl text-white focus:outline-none focus:border-neon-purple text-sm"
-                  autoFocus
+                  autoComplete="off"
                 />
               </div>
 

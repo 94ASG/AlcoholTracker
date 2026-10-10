@@ -200,6 +200,34 @@ export const Home = () => {
             </div>
           )}
         </div>
+
+        {/* App Guide Button / Teaser */}
+        <div className="pt-1">
+          <button
+            onClick={() => navigate('/guide')}
+            className="w-full card p-4 flex items-center justify-between group hover:border-neon-lime/30 transition-all text-left active:scale-[0.99]"
+          >
+            <div className="flex items-center gap-3.5">
+              <div className="w-11 h-11 rounded-2xl bg-neon-lime/10 border border-neon-lime/20 flex items-center justify-center text-xl flex-shrink-0 group-hover:scale-105 transition-transform">
+                💡
+              </div>
+              <div>
+                <div className="flex items-center gap-2">
+                  <h4 className="font-bold text-white text-sm group-hover:text-neon-lime transition-colors">
+                    So funktioniert's
+                  </h4>
+                  <span className="text-[10px] font-mono font-bold uppercase px-1.5 py-0.5 rounded-md bg-neon-lime/10 text-neon-lime border border-neon-lime/20">
+                    Guide
+                  </span>
+                </div>
+                <p className="text-xs text-dim mt-0.5">
+                  Erfahre alles über Partys, Runden & den Story-Rückblick
+                </p>
+              </div>
+            </div>
+            <ArrowRight className="w-4 h-4 text-dim group-hover:text-neon-lime group-hover:translate-x-1 transition-all flex-shrink-0" />
+          </button>
+        </div>
       </main>
 
       {/* MODAL: NEUE PARTY STARTEN */}
@@ -217,18 +245,18 @@ export const Home = () => {
               </button>
             </div>
 
-            <form onSubmit={handleCreateParty} className="py-3 space-y-4 flex-1 overflow-y-auto">
+            <form onSubmit={handleCreateParty} className="py-3 space-y-3.5 flex-1 overflow-y-auto">
               <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-faint mb-2">
+                <label className="block text-xs font-bold uppercase tracking-wider text-faint mb-1.5">
                   Party-Emoji
                 </label>
-                <div className="grid grid-cols-5 gap-2">
+                <div className="grid grid-cols-5 gap-1.5">
                   {PARTY_EMOJIS.map((em) => (
                     <button
                       key={em}
                       type="button"
                       onClick={() => setNewPartyEmoji(em)}
-                      className={`p-2.5 text-2xl rounded-2xl border text-center transition-all ${
+                      className={`p-2 text-xl rounded-xl border text-center transition-all ${
                         newPartyEmoji === em
                           ? 'border-neon-lime bg-neon-lime/10'
                           : 'border-white/5 bg-surface-light'
@@ -251,6 +279,7 @@ export const Home = () => {
                   placeholder="z.B. Geburtstagsfeier, WG-Abend..."
                   maxLength={40}
                   className="w-full p-3.5 bg-surface-light border border-white/10 rounded-2xl text-white font-bold placeholder-dim focus:outline-none focus:border-neon-lime text-sm"
+                  autoComplete="off"
                   required
                 />
               </div>

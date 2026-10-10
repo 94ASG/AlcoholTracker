@@ -11,6 +11,7 @@ import { Home } from './pages/Home';
 import { Party } from './pages/Party';
 import { Wrapped } from './pages/Wrapped';
 import { Me } from './pages/Me';
+import { Guide } from './pages/Guide';
 
 function AppContent() {
   const { profile, loading } = useProfile();
@@ -38,6 +39,7 @@ function AppContent() {
         <Route path="/p/:id" element={<Party />} />
         <Route path="/p/:id/wrapped" element={<Wrapped />} />
         <Route path="/me" element={<Me />} />
+        <Route path="/guide" element={<Guide />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>
