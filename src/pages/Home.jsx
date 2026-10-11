@@ -7,7 +7,10 @@ import { useNavigate } from 'react-router-dom';
 import { api } from '../lib/api';
 import { useProfile } from '../context/ProfileContext';
 import { formatTimeRemaining } from '../utils/drinks';
-import { Plus, ArrowRight, X } from 'lucide-react';
+import { generateRandomSymbolCode } from '../utils/symbols';
+import { SymbolKeypadModal } from '../components/party/SymbolKeypadModal';
+import { PartyCodeRevealModal } from '../components/party/PartyCodeRevealModal';
+import { Plus, ArrowRight, X, Lock, Users } from 'lucide-react';
 
 const PARTY_EMOJIS = ['🎉', '🍺', '🍻', '🍹', '🍾', '🌴', '🔥', '🕺', '💃', '🚀'];
 
@@ -21,7 +24,12 @@ export const Home = () => {
   // Neues Party-Formular
   const [newPartyName, setNewPartyName] = useState('');
   const [newPartyEmoji, setNewPartyEmoji] = useState('🎉');
+  const [useCodeProtection, setUseCodeProtection] = useState(false);
   const [creating, setCreating] = useState(false);
+
+  // Password Modals
+  const [createdPartyWithCode, setCreatedPartyWithCode] = useState(null);
+  const [unlockingParty, setUnlockingParty] = useState(null);
 
   const fetchParties = async () => {
     try {
@@ -44,14 +52,24 @@ export const Home = () => {
 
     setCreating(true);
     try {
+      const symbolCode = useCodeProtection ? generateRandomSymbolCode() : null;
+
       const created = await api.createParty({
         name: newPartyName.trim(),
         emoji: newPartyEmoji,
         hostId: profile.id,
+        symbolCode,
       });
 
       setIsCreateOpen(false);
-      navigate(`/p/${created.id}`);
+      setNewPartyName('');
+      setUseCodeProtection(false);
+
+      if (symbolCode) {
+        setCreatedPartyWithCode({ ...created, symbol_code: symbolCode });
+      } else {
+        navigate(`/p/${created.id}`);
+      }
     } catch (err) {
       alert('Fehler beim Erstellen: ' + err.message);
     } finally {
@@ -67,6 +85,23 @@ export const Home = () => {
       console.error(err);
       navigate(`/p/${partyId}`);
     }
+  };
+
+  const handlePartyCardClick = (p) => {
+    const members = (p.party_members || []).map((m) => m.profiles).filter(Boolean);
+    const isMember = members.some((m) => m.id === profile?.id);
+
+    if (isMember) {
+      navigate(`/p/${p.id}`);
+      return;
+    }
+
+    if (p.symbol_code) {
+      setUnlockingParty(p);
+      return;
+    }
+
+    handleJoinParty(p.id);
   };
 
   return (
@@ -151,48 +186,67 @@ export const Home = () => {
                 return (
                   <div
                     key={p.id}
-                    onClick={() => handleJoinParty(p.id)}
+                    onClick={() => handlePartyCardClick(p)}
                     className={`glass-card p-4 transition-all active:scale-[0.99] cursor-pointer hover:border-white/20 ${
                       isMember ? 'border-neon-lime/30 bg-surface/95' : 'border-white/[0.08]'
                     }`}
                   >
                     <div className="flex items-start justify-between gap-3">
                       <div className="flex items-center gap-3">
-                        <div className="w-12 h-12 rounded-2xl bg-surface-light border border-white/5 flex items-center justify-center text-2xl">
+                        <div className="w-12 h-12 rounded-2xl bg-surface-light border border-white/5 flex items-center justify-center text-2xl flex-shrink-0">
                           {p.emoji}
                         </div>
                         <div>
-                          <h4 className="font-bold text-white text-base leading-tight">
-                            {p.name}
-                          </h4>
+                          <div className="flex items-center gap-2">
+                            <h4 className="font-bold text-white text-base leading-tight">
+                              {p.name}
+                            </h4>
+                            {p.symbol_code && (
+                              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-neon-cyan/15 text-neon-cyan text-[10px] font-bold border border-neon-cyan/25">
+                                <Lock className="w-2.5 h-2.5" />
+                                <span>Code-geschützt</span>
+                              </span>
+                            )}
+                          </div>
                           <p className="text-[11px] text-faint font-mono mt-0.5">
                             noch {timeStr}
                           </p>
                         </div>
                       </div>
 
-                      <div className="flex items-center gap-1 text-neon-lime text-xs font-bold pt-1">
-                        <span>{isMember ? 'Öffnen' : 'Beitreten'}</span>
-                        <ArrowRight className="w-4 h-4" />
+                      <div className="flex items-center gap-1 text-xs font-bold pt-1">
+                        <span className={isMember ? 'text-neon-lime' : p.symbol_code ? 'text-neon-cyan' : 'text-neon-lime'}>
+                          {isMember ? 'Öffnen' : p.symbol_code ? 'Entsperren 🔒' : 'Beitreten'}
+                        </span>
+                        <ArrowRight className="w-4 h-4 text-dim" />
                       </div>
                     </div>
 
-                    {/* Mitglieder Avatare */}
-                    <div className="flex items-center gap-2 mt-4 pt-3 border-t border-white/[0.04]">
-                      <div className="flex -space-x-2 overflow-hidden">
-                        {members.slice(0, 6).map((m, idx) => (
-                          <div
-                            key={idx}
-                            className="w-7 h-7 rounded-full bg-surface-light border-2 border-surface flex items-center justify-center text-xs"
-                            title={m.name}
-                          >
-                            {m.emoji}
-                          </div>
-                        ))}
+                    {/* Mitglieder Avatare & Teilnehmerzahl */}
+                    <div className="flex items-center justify-between gap-2 mt-4 pt-3 border-t border-white/[0.04]">
+                      <div className="flex items-center gap-2">
+                        <div className="flex -space-x-2 overflow-hidden">
+                          {members.slice(0, 6).map((m, idx) => (
+                            <div
+                              key={idx}
+                              className="w-7 h-7 rounded-full bg-surface-light border-2 border-surface flex items-center justify-center text-xs"
+                              title={m.name}
+                            >
+                              {m.emoji}
+                            </div>
+                          ))}
+                        </div>
+                        <div className="flex items-center gap-1.5 text-xs text-dim font-bold ml-1">
+                          <Users className="w-3.5 h-3.5 text-neon-lime" />
+                          <span>{members.length} {members.length === 1 ? 'Teilnehmer' : 'Teilnehmer'}</span>
+                        </div>
                       </div>
-                      <span className="text-xs text-dim font-medium ml-1">
-                        {members.length} {members.length === 1 ? 'Teilnehmer' : 'Teilnehmer'}
-                      </span>
+
+                      {isMember && (
+                        <span className="text-[10px] font-bold text-neon-lime bg-neon-lime/10 px-2 py-0.5 rounded-full border border-neon-lime/20">
+                          Dabei ✓
+                        </span>
+                      )}
                     </div>
                   </div>
                 );
@@ -284,6 +338,33 @@ export const Home = () => {
                 />
               </div>
 
+              {/* Passwort / Symbol-Code Toggle */}
+              <div className="flex items-center justify-between p-3.5 bg-surface-light border border-white/5 rounded-2xl">
+                <div className="flex items-center gap-3">
+                  <span className="w-9 h-9 rounded-xl bg-neon-cyan/15 text-neon-cyan border border-neon-cyan/20 flex items-center justify-center text-base flex-shrink-0">
+                    <Lock className="w-4 h-4" />
+                  </span>
+                  <div>
+                    <p className="font-bold text-white text-xs">Mit Zufalls-Code schützen</p>
+                    <p className="text-[10px] text-dim">Wii U Style Pairing mit 4 Symbolen</p>
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => setUseCodeProtection(!useCodeProtection)}
+                  className={`w-12 h-6 rounded-full transition-colors relative p-0.5 flex-shrink-0 ${
+                    useCodeProtection ? 'bg-neon-cyan' : 'bg-white/10'
+                  }`}
+                >
+                  <div
+                    className={`w-5 h-5 rounded-full bg-white transition-transform ${
+                      useCodeProtection ? 'translate-x-6' : 'translate-x-0'
+                    }`}
+                  />
+                </button>
+              </div>
+
               <div className="p-3 bg-white/[0.03] rounded-2xl border border-white/5 text-[11px] text-faint leading-relaxed">
                 ⏰ <b>Automatisches Ende:</b> Die Party endet nach maximal 10 Stunden bzw. am nächsten Morgen um 10:00 Uhr. Danach erhalten alle den Story-Rückblick des Abends!
               </div>
@@ -300,6 +381,39 @@ export const Home = () => {
             </form>
           </div>
         </>
+      )}
+
+      {/* MODAL: CODE EINGEBEN BEIM BEITRETEN */}
+      {unlockingParty && (
+        <SymbolKeypadModal
+          targetCode={unlockingParty.symbol_code}
+          partyName={unlockingParty.name}
+          onClose={() => setUnlockingParty(null)}
+          onSuccess={() => {
+            const pId = unlockingParty.id;
+            setUnlockingParty(null);
+            handleJoinParty(pId);
+          }}
+        />
+      )}
+
+      {/* MODAL: CODE ANZEIGEN NACH ERSTELLUNG */}
+      {createdPartyWithCode && (
+        <PartyCodeRevealModal
+          symbolCode={createdPartyWithCode.symbol_code}
+          partyName={createdPartyWithCode.name}
+          isJustCreated={true}
+          onClose={() => {
+            const pId = createdPartyWithCode.id;
+            setCreatedPartyWithCode(null);
+            navigate(`/p/${pId}`);
+          }}
+          onProceed={() => {
+            const pId = createdPartyWithCode.id;
+            setCreatedPartyWithCode(null);
+            navigate(`/p/${pId}`);
+          }}
+        />
       )}
     </div>
   );

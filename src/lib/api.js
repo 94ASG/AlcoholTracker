@@ -57,6 +57,7 @@ export const api = {
         created_at,
         ends_at,
         ended_at,
+        symbol_code,
         party_members (
           profile_id,
           profiles ( id, name, emoji, color )
@@ -84,7 +85,8 @@ export const api = {
           created_at,
           ends_at,
           ended_at,
-          host_id
+          host_id,
+          symbol_code
         )
       `)
       .eq('profile_id', profileId)
@@ -107,6 +109,7 @@ export const api = {
         created_at,
         ends_at,
         ended_at,
+        symbol_code,
         party_members (
           profile_id,
           joined_at,
@@ -120,13 +123,14 @@ export const api = {
     return data;
   },
 
-  async createParty({ name, emoji = '🎉', hostId }) {
+  async createParty({ name, emoji = '🎉', hostId, symbolCode = null }) {
     const { data, error } = await supabase
       .from('parties')
       .insert({
         name: name.trim(),
         emoji,
         host_id: hostId,
+        symbol_code: symbolCode || null,
       })
       .select()
       .single();

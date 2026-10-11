@@ -12,8 +12,12 @@ import { DrinkSheet } from '../components/party/DrinkSheet';
 import { PartyMenu } from '../components/party/PartyMenu';
 import { UndoToast } from '../components/party/UndoToast';
 import { formatTimeRemaining, getGroupMilestoneInfo } from '../utils/drinks';
-import { ArrowLeft, MoreVertical, Plus, Sparkles } from 'lucide-react';
+import { ArrowLeft, MoreVertical, Plus, Sparkles, Lock } from 'lucide-react';
 import confetti from 'canvas-confetti';
+import { PartyHeaderFx } from '../components/party/PartyHeaderFx';
+import { PartyCodeRevealModal } from '../components/party/PartyCodeRevealModal';
+import { SymbolKeypadModal } from '../components/party/SymbolKeypadModal';
+import { api } from '../lib/api';
 
 export const Party = () => {
   const { id } = useParams();
@@ -38,12 +42,29 @@ export const Party = () => {
     toggleReaction,
     addGuest,
     endParty,
+    refresh,
   } = useParty(id);
 
   const [activeTab, setActiveTab] = useState('ranking'); // 'ranking' | 'feed'
   const [isDrinkSheetOpen, setIsDrinkSheetOpen] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isCodeModalOpen, setIsCodeModalOpen] = useState(false);
+  const [isDirectJoinModalOpen, setIsDirectJoinModalOpen] = useState(true);
   const [undoItem, setUndoItem] = useState(null); // { drinkIds, name, icon, isRound }
+
+  const isMember = useMemo(() => {
+    return (members || []).some((m) => m.id === profile?.id);
+  }, [members, profile?.id]);
+
+  // Offene Partys automatisch beitreten, falls Direktlink aufgerufen wurde
+  useEffect(() => {
+    if (loading || !party || !profile) return;
+    if (!isMember && !party.symbol_code) {
+      api.joinParty(id, profile.id).then(() => {
+        refresh();
+      }).catch(console.error);
+    }
+  }, [loading, party, profile, isMember, id, refresh]);
 
   // Countdown State
   const [timeRemaining, setTimeRemaining] = useState('');
@@ -155,11 +176,54 @@ export const Party = () => {
     );
   }
 
+  // Direktlink-Schutz für Partys mit Symbol-Code, falls noch kein Mitglied
+  if (party.symbol_code && !isMember) {
+    return (
+      <div className="min-h-screen w-full max-w-md mx-auto bg-bg flex flex-col items-center justify-center p-6 text-center relative overflow-hidden">
+        <PartyHeaderFx />
+        <div className="w-16 h-16 rounded-3xl bg-surface-light border border-neon-lime/30 flex items-center justify-center text-3xl shadow-glow-lime/20 mb-4 animate-pulse">
+          🔒
+        </div>
+        <h2 className="display-font text-3xl text-white mb-2">{party.name}</h2>
+        <p className="text-xs text-dim mb-6 max-w-xs">
+          Diese Party ist mit einem 4-teiligen Symbol-Code geschützt. Gib die 4 Symbole ein, um beizutreten!
+        </p>
+        <button
+          onClick={() => setIsDirectJoinModalOpen(true)}
+          className="btn-lime w-full"
+        >
+          Symbol-Code eingeben
+        </button>
+        <button
+          onClick={() => navigate('/')}
+          className="mt-4 text-xs text-faint hover:text-dim"
+        >
+          Zurück zur Übersicht
+        </button>
+
+        <SymbolKeypadModal
+          partyName={party.name}
+          targetSymbolCode={party.symbol_code}
+          isOpen={isDirectJoinModalOpen}
+          onClose={() => navigate('/')}
+          onSuccess={async () => {
+            setIsDirectJoinModalOpen(false);
+            await api.joinParty(id, profile.id);
+            await refresh();
+          }}
+        />
+      </div>
+    );
+  }
+
   return (
     <div className="app-container pb-32">
       {/* Top Header */}
-      <header className="sticky top-0 z-30 bg-bg/90 backdrop-blur-md border-b border-white/[0.08] px-5 pb-3 pt-[calc(env(safe-area-inset-top,0px)+0.75rem)]">
-        <div className="flex items-center justify-between">
+      <header className="sticky top-0 z-30 bg-bg/90 backdrop-blur-md border-b border-white/[0.08] px-5 pb-3 pt-[calc(env(safe-area-inset-top,0px)+0.75rem)] relative overflow-hidden">
+        {/* Gemini Live Soundwave Fx */}
+        <PartyHeaderFx />
+
+        <div className="relative z-10 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <button
               onClick={() => navigate('/')}
@@ -170,7 +234,7 @@ export const Party = () => {
             <div>
               <h1 className="font-extrabold text-white text-base leading-tight flex items-center gap-1.5">
                 <span>{party.emoji}</span>
-                <span className="truncate max-w-[180px]">{party.name}</span>
+                <span className="truncate max-w-[150px] xs:max-w-[180px]">{party.name}</span>
               </h1>
               <p className="text-[11px] text-faint font-mono">
                 {members.length} {members.length === 1 ? 'Person' : 'Personen'} ·{' '}
@@ -184,6 +248,18 @@ export const Party = () => {
           </div>
 
           <div className="flex items-center gap-2">
+            {/* Party-Code Button (falls Code-geschützt) */}
+            {party.symbol_code && (
+              <button
+                onClick={() => setIsCodeModalOpen(true)}
+                className="h-9 px-2.5 rounded-xl bg-surface-light border border-neon-lime/30 text-neon-lime hover:bg-neon-lime/10 text-xs font-bold flex items-center gap-1.5 transition-all active:scale-95 shadow-glow-lime/10"
+                title="Party-Code ansehen"
+              >
+                <Lock className="w-3.5 h-3.5" />
+                <span className="text-[11px] hidden xs:inline">Code</span>
+              </button>
+            )}
+
             {isEnded ? (
               <button
                 onClick={handleOpenWrapped}
@@ -204,7 +280,7 @@ export const Party = () => {
         </div>
 
         {/* Tab Switcher: Ranking vs Live-Feed */}
-        <div className="flex bg-surface-light rounded-xl p-1 mt-3 border border-white/5">
+        <div className="relative z-10 flex bg-surface-light rounded-xl p-1 mt-3 border border-white/5">
           <button
             onClick={() => setActiveTab('ranking')}
             className={`flex-1 py-2 rounded-lg text-xs font-bold transition-all ${
@@ -307,6 +383,17 @@ export const Party = () => {
           onClose={() => setIsMenuOpen(false)}
           onAddGuest={addGuest}
           onEndParty={endParty}
+          onShowCode={() => setIsCodeModalOpen(true)}
+        />
+      )}
+
+      {/* Party-Code Reveal Modal */}
+      {party?.symbol_code && (
+        <PartyCodeRevealModal
+          partyName={party.name}
+          symbolCode={party.symbol_code}
+          isOpen={isCodeModalOpen}
+          onClose={() => setIsCodeModalOpen(false)}
         />
       )}
     </div>

@@ -3,11 +3,11 @@
 // ==============================================
 
 import React, { useState } from 'react';
-import { X, Share2, UserPlus, Flag, Check, AlertTriangle } from 'lucide-react';
+import { X, Share2, UserPlus, Flag, Check, AlertTriangle, Lock } from 'lucide-react';
 
 const GUEST_EMOJIS = ['👨', '👩', '👦', '👧', '🧔', '👱', '🦊', '🐻', '🐼', '🐸'];
 
-export const PartyMenu = ({ party, isHost, onClose, onAddGuest, onEndParty }) => {
+export const PartyMenu = ({ party, isHost, onClose, onAddGuest, onEndParty, onShowCode }) => {
   const [mode, setMode] = useState('menu'); // 'menu' | 'add_guest' | 'confirm_end'
   const [guestName, setGuestName] = useState('');
   const [guestEmoji, setGuestEmoji] = useState('👤');
@@ -78,6 +78,25 @@ export const PartyMenu = ({ party, isHost, onClose, onAddGuest, onEndParty }) =>
                 </div>
                 {copied && <Check className="w-4 h-4 text-neon-lime" />}
               </button>
+
+              {/* Party-Code anzeigen (wenn Passwort gesetzt) */}
+              {party?.symbol_code && onShowCode && (
+                <button
+                  onClick={() => {
+                    onClose();
+                    onShowCode();
+                  }}
+                  className="w-full p-3.5 rounded-2xl bg-surface-light border border-neon-lime/20 flex items-center gap-3 text-left transition-all active:scale-95"
+                >
+                  <div className="w-10 h-10 rounded-xl bg-neon-lime/15 flex items-center justify-center text-neon-lime">
+                    <Lock className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <p className="font-bold text-white text-sm">Party-Code anzeigen</p>
+                    <p className="text-xs text-dim">4-teiligen Wii-U-Symbol-Code ansehen</p>
+                  </div>
+                </button>
+              )}
 
               {/* Gast ohne Handy */}
               <button
