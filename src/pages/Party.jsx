@@ -219,8 +219,8 @@ export const Party = () => {
   return (
     <div className="app-container pb-32">
       {/* Top Header */}
-      <header className="sticky top-0 z-30 bg-bg/90 backdrop-blur-md border-b border-white/[0.08] px-5 pb-3 pt-[calc(env(safe-area-inset-top,0px)+0.75rem)] relative overflow-hidden">
-        {/* Gemini Live Soundwave Fx */}
+      <header className="sticky top-0 z-30 bg-bg/75 backdrop-blur-md border-b border-white/[0.08] px-5 pb-3 pt-[calc(env(safe-area-inset-top,0px)+0.75rem)] relative overflow-hidden">
+        {/* Fluid Club Aurora Fx */}
         <PartyHeaderFx />
 
         <div className="relative z-10 flex items-center justify-between">

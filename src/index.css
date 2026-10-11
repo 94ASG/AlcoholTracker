@@ -81,3 +81,64 @@
     opacity: 0.55;
   }
 }
+
+@keyframes auroraDrift1 {
+  0% {
+    transform: translate3d(-10%, -8%, 0) scale(1) rotate(0deg);
+    opacity: 0.6;
+  }
+  50% {
+    transform: translate3d(18%, 12%, 0) scale(1.22) rotate(10deg);
+    opacity: 0.85;
+  }
+  100% {
+    transform: translate3d(-10%, -8%, 0) scale(1) rotate(0deg);
+    opacity: 0.6;
+  }
+}
+
+@keyframes auroraDrift2 {
+  0% {
+    transform: translate3d(20%, 8%, 0) scale(1.15) rotate(0deg);
+    opacity: 0.55;
+  }
+  50% {
+    transform: translate3d(-15%, -12%, 0) scale(0.92) rotate(-12deg);
+    opacity: 0.82;
+  }
+  100% {
+    transform: translate3d(20%, 8%, 0) scale(1.15) rotate(0deg);
+    opacity: 0.55;
+  }
+}
+
+@keyframes auroraDrift3 {
+  0% {
+    transform: translate3d(-8%, 15%, 0) scale(0.95);
+    opacity: 0.5;
+  }
+  50% {
+    transform: translate3d(12%, -8%, 0) scale(1.18);
+    opacity: 0.78;
+  }
+  100% {
+    transform: translate3d(-8%, 15%, 0) scale(0.95);
+    opacity: 0.5;
+  }
+}
+
+@keyframes auroraWavePulse {
+  0% {
+    opacity: 0.45;
+    transform: scaleX(0.96) translateY(0);
+  }
+  50% {
+    opacity: 0.85;
+    transform: scaleX(1.04) translateY(-1px);
+  }
+  100% {
+    opacity: 0.45;
+    transform: scaleX(0.96) translateY(0);
+  }
+}
+

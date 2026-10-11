@@ -1,57 +1,73 @@
 // ==============================================
-// AlcoholTracker 2.0: PartyHeaderFx (Gemini-Live Style Soundwave)
+// AlcoholTracker 2.0: PartyHeaderFx (Fluid Club Aurora)
 // ==============================================
 
 import React from 'react';
 
 /**
- * Zarte, organisch pulsierende Neon-Soundwave im Gemini-Live-Stil.
- * Platziert im oberen Safe-Area-Bereich, abgestimmt auf den diffusen iOS-PWA-Blur.
+ * Option 1: Volumetrische "Fluid Club Aurora" über die volle Bildschirmbreite und -höhe.
+ * Erzeugt eine weiche, raumfüllende Club- und Festival-Lichtatmosphäre.
+ * Schimmert organisch durch den milchglasartigen iOS-PWA-Statusleisten-Blur,
+ * ohne Text oder Buttons zu beeinträchtigen.
  */
 export const PartyHeaderFx = () => {
-  // 18 harmonische Soundwave-Säulen mit unterschiedlichen Phasen und Höhen
-  const bars = [
-    { height: 10, delay: '0.1s', color: '#00F0FF' },
-    { height: 16, delay: '0.4s', color: '#00F0FF' },
-    { height: 22, delay: '0.8s', color: '#38EF7D' },
-    { height: 14, delay: '0.2s', color: '#70F25A' },
-    { height: 24, delay: '0.6s', color: '#C6FF3D' },
-    { height: 18, delay: '1.0s', color: '#C6FF3D' },
-    { height: 26, delay: '0.3s', color: '#E2FF5E' },
-    { height: 20, delay: '0.7s', color: '#FFE043' },
-    { height: 28, delay: '0.1s', color: '#FFB800' },
-    { height: 22, delay: '0.5s', color: '#FF7A45' },
-    { height: 26, delay: '0.9s', color: '#FF2E93' },
-    { height: 18, delay: '0.3s', color: '#FF2E93' },
-    { height: 24, delay: '0.7s', color: '#E024B7' },
-    { height: 16, delay: '0.2s', color: '#B829E3' },
-    { height: 22, delay: '0.6s', color: '#8B5CF6' },
-    { height: 14, delay: '1.1s', color: '#7C3AED' },
-    { height: 18, delay: '0.4s', color: '#6366F1' },
-    { height: 10, delay: '0.8s', color: '#00F0FF' },
-  ];
-
   return (
-    <div className="absolute top-0 left-0 right-0 h-[calc(env(safe-area-inset-top,0px)+0.75rem)] pointer-events-none overflow-hidden select-none z-0 flex items-center justify-center opacity-65">
-      {/* Sanfter Ambient Aura Glow im Hintergrund */}
-      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-neon-lime/[0.04] to-transparent blur-md" />
+    <div
+      className="absolute inset-0 pointer-events-none overflow-hidden select-none z-0"
+      aria-hidden="true"
+    >
+      {/* 1. Tiefer Ambient-Raumglow (120% Breite) */}
+      <div className="absolute -top-10 left-1/2 -translate-x-1/2 w-[120%] h-40 bg-gradient-to-b from-neon-purple/25 via-neon-cyan/15 to-transparent blur-3xl opacity-75" />
 
-      {/* Gemini Live Organische Soundwave-Pill-Reihe */}
-      <div className="flex items-center justify-center gap-[3px] h-full max-w-[280px] w-full px-4">
-        {bars.map((bar, idx) => (
-          <div
-            key={idx}
-            className="w-[2.5px] rounded-full transition-all duration-700 ease-in-out"
-            style={{
-              height: `${bar.height}px`,
-              backgroundColor: bar.color,
-              boxShadow: `0 0 8px ${bar.color}99`,
-              animation: `geminiLivePulse 2.8s ease-in-out infinite alternate`,
-              animationDelay: bar.delay,
-            }}
-          />
-        ))}
-      </div>
+      {/* 2. Fluid Aurora Blob A (Cyan / Lime - Linke Flanke bis Zentrum) */}
+      <div
+        className="absolute -top-10 -left-16 w-72 h-40 rounded-full blur-[36px] mix-blend-screen opacity-70 will-change-transform"
+        style={{
+          background: 'radial-gradient(circle, rgba(0,240,255,0.75) 0%, rgba(198,255,61,0.45) 55%, transparent 75%)',
+          animation: 'auroraDrift1 8.5s ease-in-out infinite',
+        }}
+      />
+
+      {/* 3. Fluid Aurora Blob B (Hot Pink / Purple - Rechte Flanke) */}
+      <div
+        className="absolute -top-12 -right-16 w-80 h-44 rounded-full blur-[40px] mix-blend-screen opacity-65 will-change-transform"
+        style={{
+          background: 'radial-gradient(circle, rgba(255,46,147,0.75) 0%, rgba(139,92,246,0.5) 50%, transparent 75%)',
+          animation: 'auroraDrift2 10.5s ease-in-out infinite',
+        }}
+      />
+
+      {/* 4. Fluid Aurora Blob C (Festival Lime / Amber - Oben Mitte hinter Statusleiste) */}
+      <div
+        className="absolute -top-14 left-1/4 w-64 h-36 rounded-full blur-[32px] mix-blend-screen opacity-60 will-change-transform"
+        style={{
+          background: 'radial-gradient(circle, rgba(198,255,61,0.7) 0%, rgba(255,184,0,0.4) 60%, transparent 75%)',
+          animation: 'auroraDrift3 9s ease-in-out infinite',
+        }}
+      />
+
+      {/* 5. Durchgezogenes horizontales Neon-Lichtband (Full-Width Aurora Ribbon) */}
+      <div
+        className="absolute top-[calc(env(safe-area-inset-top,0px)+0.25rem)] left-0 right-0 h-[2.5px] blur-[1.5px] opacity-70 will-change-transform"
+        style={{
+          background:
+            'linear-gradient(90deg, transparent 0%, rgba(0,240,255,0.6) 12%, rgba(198,255,61,0.8) 38%, rgba(255,46,147,0.75) 70%, rgba(139,92,246,0.6) 88%, transparent 100%)',
+          animation: 'auroraWavePulse 4s ease-in-out infinite',
+        }}
+      />
+
+      {/* 6. Weiche Lichtkante darunter für subtile Tiefenwirkung */}
+      <div
+        className="absolute top-[calc(env(safe-area-inset-top,0px)+0.45rem)] left-0 right-0 h-4 opacity-25 blur-sm"
+        style={{
+          background:
+            'linear-gradient(90deg, transparent 5%, rgba(0,240,255,0.3) 25%, rgba(198,255,61,0.4) 50%, rgba(255,46,147,0.3) 75%, transparent 95%)',
+        }}
+      />
+
+      {/* 7. Subtiler Vignette-Fade nach unten zur perfekten Textlesbarkeit */}
+      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#07070B]/10 to-[#07070B]/60 pointer-events-none" />
     </div>
   );
 };
+
