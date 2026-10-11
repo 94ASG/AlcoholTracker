@@ -93,7 +93,7 @@ export const PartyMenu = ({ party, isHost, onClose, onAddGuest, onEndParty, onSh
                   </div>
                   <div>
                     <p className="font-bold text-white text-sm">Party-Code anzeigen</p>
-                    <p className="text-xs text-dim">4-teiligen Wii-U-Symbol-Code ansehen</p>
+                    <p className="text-xs text-dim">4-teiligen PIN-Code für Freunde ansehen</p>
                   </div>
                 </button>
               )}

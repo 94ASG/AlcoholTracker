@@ -388,11 +388,11 @@ export const Party = () => {
       )}
 
       {/* Party-Code Reveal Modal */}
-      {party?.symbol_code && (
+      {party?.symbol_code && isCodeModalOpen && (
         <PartyCodeRevealModal
+          isOpen={isCodeModalOpen}
           partyName={party.name}
           symbolCode={party.symbol_code}
-          isOpen={isCodeModalOpen}
           onClose={() => setIsCodeModalOpen(false)}
         />
       )}

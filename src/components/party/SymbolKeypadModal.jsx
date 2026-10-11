@@ -7,10 +7,13 @@ import { CARD_SYMBOLS, CARD_SYMBOLS_MAP, verifySymbolCode } from '../../utils/sy
 import { X, Delete, Lock, AlertCircle } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
-export const SymbolKeypadModal = ({ targetCode, partyName, onClose, onSuccess }) => {
+export const SymbolKeypadModal = ({ targetCode, targetSymbolCode, partyName, onClose, onSuccess, isOpen = true }) => {
+  const effectiveTargetCode = targetCode || targetSymbolCode;
   const [entered, setEntered] = useState([]);
   const [isShaking, setIsShaking] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
+
+  if (!isOpen) return null;
 
   const triggerHaptic = () => {
     if (window.navigator?.vibrate) {
@@ -47,7 +50,7 @@ export const SymbolKeypadModal = ({ targetCode, partyName, onClose, onSuccess })
 
     // Wenn 4 Symbole vollständig eingegeben sind: Verifizieren
     if (next.length === 4) {
-      const isValid = verifySymbolCode(next, targetCode);
+      const isValid = verifySymbolCode(next, effectiveTargetCode);
       if (isValid) {
         confetti({
           particleCount: 45,
@@ -90,8 +93,8 @@ export const SymbolKeypadModal = ({ targetCode, partyName, onClose, onSuccess })
 
   return (
     <>
-      <div className="sheet-backdrop" onClick={onClose} />
-      <div className="bottom-sheet flex flex-col max-h-[90dvh] border-neon-cyan/20">
+      <div className="sheet-backdrop z-50" onClick={onClose} />
+      <div className="bottom-sheet z-[55] flex flex-col max-h-[90dvh] border-neon-cyan/20">
         {/* Header */}
         <div className="flex items-center justify-between pb-3 border-b border-white/[0.08] flex-shrink-0">
           <div className="flex items-center gap-2">
@@ -102,7 +105,7 @@ export const SymbolKeypadModal = ({ targetCode, partyName, onClose, onSuccess })
           </div>
           <button
             onClick={onClose}
-            className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-dim hover:text-white"
+            className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-dim hover:text-white cursor-pointer"
           >
             <X className="w-4 h-4" />
           </button>

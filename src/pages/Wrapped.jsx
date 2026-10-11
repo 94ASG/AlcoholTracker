@@ -301,7 +301,7 @@ export const Wrapped = () => {
             Teile euer Wrapped mit Freunden oder schau es dir später in deinem Profil an.
           </p>
 
-          <div className="w-full max-w-xs space-y-3 pt-2">
+          <div className="w-full max-w-xs space-y-3 pt-2 pointer-events-auto relative z-30">
             <button
               onClick={() => {
                 if (navigator.share) {
@@ -315,17 +315,17 @@ export const Wrapped = () => {
                   alert('Link kopiert!');
                 }
               }}
-              className="btn-lime w-full text-xs font-bold py-3.5 flex items-center justify-center gap-2"
+              className="btn-lime w-full text-xs font-bold py-3.5 flex items-center justify-center gap-2 active:scale-95 transition-all cursor-pointer"
             >
               <Share2 className="w-4 h-4" />
               <span>Wrapped teilen</span>
             </button>
 
             <button
-              onClick={() => navigate('/')}
-              className="btn-secondary w-full text-xs font-bold py-3.5"
+              onClick={() => navigate(`/p/${id}`)}
+              className="btn-secondary w-full text-xs font-bold py-3.5 active:scale-95 transition-all cursor-pointer"
             >
-              Zurück zur Übersicht
+              Zurück zur Party
             </button>
           </div>
         </div>
@@ -333,7 +333,7 @@ export const Wrapped = () => {
     });
 
     return s;
-  }, [data, profile, navigate]);
+  }, [data, profile, navigate, id]);
 
   // Konfetti beim Podium
   useEffect(() => {
@@ -420,7 +420,7 @@ export const Wrapped = () => {
       </div>
 
       {/* Slide Content */}
-      <div className="flex-1 relative z-10 flex flex-col justify-center">
+      <div className="flex-1 relative z-20 flex flex-col justify-center pointer-events-none">
         {currentSlide.render()}
       </div>
 

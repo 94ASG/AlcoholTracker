@@ -346,7 +346,7 @@ export const Home = () => {
                   </span>
                   <div>
                     <p className="font-bold text-white text-xs">Mit Zufalls-Code schützen</p>
-                    <p className="text-[10px] text-dim">Wii U Style Pairing mit 4 Symbolen</p>
+                    <p className="text-[10px] text-dim">Andere benötigen eine PIN, um beizutreten</p>
                   </div>
                 </div>
 

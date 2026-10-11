@@ -6,15 +6,31 @@ import React from 'react';
 import { parseSymbolCode } from '../../utils/symbols';
 import { X, Lock, Sparkles } from 'lucide-react';
 
-export const PartyCodeRevealModal = ({ symbolCode, partyName, onClose, onProceed, isJustCreated = false }) => {
+export const PartyCodeRevealModal = ({
+  isOpen = true,
+  symbolCode,
+  partyName,
+  onClose,
+  onProceed,
+  isJustCreated = false,
+}) => {
+  if (!isOpen) return null;
   const symbols = parseSymbolCode(symbolCode);
 
   if (!symbols || symbols.length !== 4) return null;
 
+  const handleClose = () => {
+    if (onProceed) {
+      onProceed();
+    } else if (onClose) {
+      onClose();
+    }
+  };
+
   return (
     <>
-      <div className="sheet-backdrop" onClick={onClose} />
-      <div className="bottom-sheet flex flex-col max-h-[85dvh] border-neon-cyan/30 shadow-[0_0_40px_rgba(0,240,255,0.15)]">
+      <div className="sheet-backdrop z-50" onClick={handleClose} />
+      <div className="bottom-sheet z-[55] flex flex-col max-h-[85dvh] border-neon-cyan/30 shadow-[0_0_40px_rgba(0,240,255,0.15)]">
         {/* Header */}
         <div className="flex items-center justify-between pb-3 border-b border-white/[0.08] flex-shrink-0">
           <div className="flex items-center gap-2">
@@ -24,8 +40,8 @@ export const PartyCodeRevealModal = ({ symbolCode, partyName, onClose, onProceed
             <h3 className="display-font text-2xl text-white">Party-Code</h3>
           </div>
           <button
-            onClick={onClose}
-            className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-dim hover:text-white"
+            onClick={handleClose}
+            className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-dim hover:text-white cursor-pointer"
           >
             <X className="w-4 h-4" />
           </button>
@@ -36,7 +52,7 @@ export const PartyCodeRevealModal = ({ symbolCode, partyName, onClose, onProceed
           <div>
             <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-neon-pink/15 text-neon-pink text-xs font-bold uppercase tracking-wider mb-2 border border-neon-pink/20">
               <Sparkles className="w-3.5 h-3.5" />
-              <span>Wii U Pairing Code</span>
+              <span>Party-PIN</span>
             </div>
             <h4 className="font-extrabold text-white text-lg">
               {isJustCreated ? 'Party erfolgreich erstellt! 🎉' : partyName || 'Party-Code'}
@@ -71,8 +87,8 @@ export const PartyCodeRevealModal = ({ symbolCode, partyName, onClose, onProceed
         {/* Footer Button */}
         <div className="pt-2 pb-1 flex-shrink-0">
           <button
-            onClick={onProceed || onClose}
-            className="btn-lime w-full py-3.5 text-sm font-black flex items-center justify-center gap-2 shadow-glow-lime"
+            onClick={handleClose}
+            className="btn-lime w-full py-3.5 text-sm font-black flex items-center justify-center gap-2 shadow-glow-lime cursor-pointer"
           >
             <span>{isJustCreated ? 'Alles klar, zur Party 🚀' : 'Schließen'}</span>
           </button>
