@@ -7,7 +7,15 @@ import { X, Share2, UserPlus, Flag, Check, AlertTriangle, Lock } from 'lucide-re
 
 const GUEST_EMOJIS = ['👨', '👩', '👦', '👧', '🧔', '👱', '🦊', '🐻', '🐼', '🐸'];
 
-export const PartyMenu = ({ party, isHost, onClose, onAddGuest, onEndParty, onShowCode }) => {
+export const PartyMenu = ({
+  party,
+  isHost,
+  onClose,
+  onAddGuest,
+  onEndParty,
+  onShowCode,
+  onOpenBodyMetrics,
+}) => {
   const [mode, setMode] = useState('menu'); // 'menu' | 'add_guest' | 'confirm_end'
   const [guestName, setGuestName] = useState('');
   const [guestEmoji, setGuestEmoji] = useState('👤');
@@ -94,6 +102,32 @@ export const PartyMenu = ({ party, isHost, onClose, onAddGuest, onEndParty, onSh
                   <div>
                     <p className="font-bold text-white text-sm">Party-Code anzeigen</p>
                     <p className="text-xs text-dim">4-teiligen PIN-Code für Freunde ansehen</p>
+                  </div>
+                </button>
+              )}
+
+              {/* Promille-Radar (Körperdaten) */}
+              {onOpenBodyMetrics && (
+                <button
+                  onClick={() => {
+                    onClose();
+                    onOpenBodyMetrics();
+                  }}
+                  className="w-full p-3.5 rounded-2xl bg-surface-light border border-white/5 flex items-center justify-between text-left transition-all active:scale-95"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-neon-cyan/15 flex items-center justify-center text-neon-cyan">
+                      <Lock className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-1.5">
+                        <p className="font-bold text-white text-sm">Promille-Radar</p>
+                        <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-neon-cyan/20 text-neon-cyan uppercase font-mono">
+                          Privat
+                        </span>
+                      </div>
+                      <p className="text-xs text-dim">Körperdaten für Pegel-Berechnung</p>
+                    </div>
                   </div>
                 </button>
               )}

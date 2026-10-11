@@ -2,7 +2,7 @@
 // AlcoholTracker: Versions-Konfiguration & Release-Historie
 // ==============================================
 
-export const APP_VERSION = '2.1.1';
+export const APP_VERSION = '2.2.0';
 export const APP_RELEASE_DATE = '11. Oktober 2026';
 export const APP_NAME = 'AlcoholTracker';
 
@@ -11,10 +11,23 @@ export const APP_NAME = 'AlcoholTracker';
  */
 export const RELEASES = [
   {
+    version: '2.2.0',
+    date: '11.10.2026',
+    title: 'Promille-Radar & Watson-Pegel-Kinetik',
+    badge: 'Aktuell 🚀',
+    highlights: [
+      'Wissenschaftliche Promille-Schätzung nach anerkannter Watson-Formel (TBW)',
+      '100% Datenschutz: Biometrische Körperdaten bleiben rein lokal auf deinem Smartphone',
+      '2-Stufen-Discovery: Sanft im Onboarding & per 1-Tap Chip direkt auf der Leaderboard-Karte',
+      'Ausnüchterungs-Prognose: Genaue Uhrzeit für 0,0 ‰ beim Aufklappen der eigenen Karte',
+      'Freiwilliges Teilen: Opt-in Schalter, um den errechneten Pegel für Party-Freunde freizugeben',
+    ],
+  },
+  {
     version: '2.1.1',
     date: '11.10.2026',
     title: 'Fluid Club Aurora & iOS WebKit Blur Clearance',
-    badge: 'Aktuell 🚀',
+    badge: 'Vorherig',
     highlights: [
       'Volle Raumausfüllung mit fließender Fluid Club Aurora über 100% Breite und Höhe',
       'Dynamische 97px Safe-Area Clearance: Gestochen scharfer Text unter iOS WebKit Blur',

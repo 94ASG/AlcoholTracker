@@ -17,6 +17,8 @@ import confetti from 'canvas-confetti';
 import { PartyHeaderFx } from '../components/party/PartyHeaderFx';
 import { PartyCodeRevealModal } from '../components/party/PartyCodeRevealModal';
 import { SymbolKeypadModal } from '../components/party/SymbolKeypadModal';
+import { BodyMetricsSheet } from '../components/party/BodyMetricsSheet';
+import { getBodyProfile, calculateBacFromDrinks } from '../utils/bac';
 import { api } from '../lib/api';
 
 export const Party = () => {
@@ -50,7 +52,21 @@ export const Party = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isCodeModalOpen, setIsCodeModalOpen] = useState(false);
   const [isDirectJoinModalOpen, setIsDirectJoinModalOpen] = useState(true);
+  const [isBodyMetricsOpen, setIsBodyMetricsOpen] = useState(false);
+  const [bodyProfile, setBodyProfile] = useState(() => getBodyProfile());
   const [undoItem, setUndoItem] = useState(null); // { drinkIds, name, icon, isRound }
+
+  // Sync BAC with party_members if shareInParty is enabled
+  useEffect(() => {
+    if (!profile?.id || !id) return;
+    if (bodyProfile?.shareInParty) {
+      const userDrinks = drinks.filter((d) => d.profile_id === profile.id);
+      const bacInfo = calculateBacFromDrinks(userDrinks, bodyProfile);
+      api.updateMemberBac(id, profile.id, bacInfo.currentBac);
+    } else {
+      api.updateMemberBac(id, profile.id, null);
+    }
+  }, [drinks, bodyProfile, profile?.id, id]);
 
   const isMember = useMemo(() => {
     return (members || []).some((m) => m.id === profile?.id);
@@ -317,6 +333,8 @@ export const Party = () => {
             drinks={drinks}
             currentProfile={profile}
             onDeleteDrink={deleteDrink}
+            bodyProfile={bodyProfile}
+            onOpenBodyMetrics={() => setIsBodyMetricsOpen(true)}
           />
         ) : (
           <Feed
@@ -384,8 +402,18 @@ export const Party = () => {
           onAddGuest={addGuest}
           onEndParty={endParty}
           onShowCode={() => setIsCodeModalOpen(true)}
+          onOpenBodyMetrics={() => setIsBodyMetricsOpen(true)}
         />
       )}
+
+      {/* Promille-Radar (Körperdaten Bottom Sheet) */}
+      <BodyMetricsSheet
+        isOpen={isBodyMetricsOpen}
+        onClose={() => setIsBodyMetricsOpen(false)}
+        onSaved={(saved) => {
+          setBodyProfile(saved);
+        }}
+      />
 
       {/* Party-Code Reveal Modal */}
       {party?.symbol_code && isCodeModalOpen && (

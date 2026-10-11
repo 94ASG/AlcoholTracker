@@ -4,12 +4,29 @@
 
 import React, { useState, useMemo } from 'react';
 import { formatGrams, computeBadges, getGroupMilestoneInfo } from '../../utils/drinks';
-import { Crown, Trash2, ChevronDown, ChevronUp } from 'lucide-react';
+import { calculateBacFromDrinks } from '../../utils/bac';
+import { Crown, Trash2, ChevronDown, ChevronUp, Lock } from 'lucide-react';
 
-export const Leaderboard = ({ leaderboard, drinks = [], currentProfile, onDeleteDrink }) => {
+export const Leaderboard = ({
+  leaderboard,
+  drinks = [],
+  currentProfile,
+  onDeleteDrink,
+  bodyProfile = null,
+  onOpenBodyMetrics = null,
+}) => {
   const [expandedId, setExpandedId] = useState(null);
 
   const leaderMaxAlcohol = leaderboard.length > 0 ? Math.max(1, leaderboard[0].totalAlcoholGrams) : 1;
+
+  // Promillewert des aktuellen Nutzers
+  const myDrinks = useMemo(() => {
+    return drinks.filter((d) => d.profile_id === currentProfile?.id);
+  }, [drinks, currentProfile?.id]);
+
+  const myBacInfo = useMemo(() => {
+    return calculateBacFromDrinks(myDrinks, bodyProfile);
+  }, [myDrinks, bodyProfile]);
 
   // Dynamische Badges
   const members = useMemo(() => leaderboard.map((l) => l.profile), [leaderboard]);
@@ -141,12 +158,52 @@ export const Leaderboard = ({ leaderboard, drinks = [], currentProfile, onDelete
                   )}
                 </div>
 
-                <div className="flex items-center gap-2 text-[11px] text-dim mt-0.5 font-mono">
+                <div className="flex items-center flex-wrap gap-x-2 gap-y-1 text-[11px] text-dim mt-0.5 font-mono">
                   <span>{item.totalDrinksCount} {item.totalDrinksCount === 1 ? 'Drink' : 'Drinks'}</span>
                   {item.totalBeerLiters > 0 && (
                     <>
                       <span>·</span>
                       <span>{item.totalBeerLiters.toFixed(1)}L Bier</span>
+                    </>
+                  )}
+
+                  {/* Promillewert für aktuellen User */}
+                  {isMe && myBacInfo && !myBacInfo.isZero && (
+                    <>
+                      <span>·</span>
+                      <span className="inline-flex items-center gap-0.5 text-neon-cyan font-bold">
+                        {myBacInfo.formattedBac}
+                        {!bodyProfile?.shareInParty && <Lock className="w-2.5 h-2.5 ml-0.5 opacity-80" />}
+                      </span>
+                    </>
+                  )}
+
+                  {/* Nudge: Noch keine Körperdaten hinterlegt */}
+                  {isMe && !bodyProfile && (
+                    <>
+                      <span>·</span>
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          if (onOpenBodyMetrics) onOpenBodyMetrics();
+                        }}
+                        className="inline-flex items-center gap-1 text-[10px] text-neon-cyan bg-neon-cyan/15 hover:bg-neon-cyan/25 border border-neon-cyan/30 px-1.5 py-0.2 rounded-md font-sans font-bold transition-all active:scale-95 cursor-pointer"
+                        title="Körperdaten für Promille-Schätzung angeben (100% privat)"
+                      >
+                        <Lock className="w-2.5 h-2.5" />
+                        <span>+ Promille</span>
+                      </button>
+                    </>
+                  )}
+
+                  {/* Promillewert für andere Mitglieder (falls geteilt) */}
+                  {!isMe && item.profile.currentBac != null && (
+                    <>
+                      <span>·</span>
+                      <span className="inline-flex items-center text-neon-cyan font-bold">
+                        ~{Number(item.profile.currentBac).toFixed(2).replace('.', ',')} ‰
+                      </span>
                     </>
                   )}
                 </div>
@@ -203,7 +260,37 @@ export const Leaderboard = ({ leaderboard, drinks = [], currentProfile, onDelete
 
             {/* Aufgeklappte Getränke-Historie */}
             {isExpanded && (
-              <div className="border-t border-white/[0.06] bg-black/40 p-3 space-y-1.5">
+              <div className="border-t border-white/[0.06] bg-black/40 p-3 space-y-2">
+                {/* Promille- & Ausnüchterungs-Prognose für den eigenen User */}
+                {isMe && myBacInfo && bodyProfile && (
+                  <div className="flex items-center justify-between p-2.5 rounded-xl bg-neon-cyan/10 border border-neon-cyan/20 text-xs">
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm">⏱️</span>
+                      <div>
+                        <p className="text-white font-bold">
+                          {myBacInfo.isZero ? 'Promille-Pegel: 0,0 ‰ (Nüchtern)' : `Promille-Pegel: ${myBacInfo.formattedBac}`}
+                        </p>
+                        <p className="text-[11px] text-dim">
+                          {myBacInfo.isZero
+                            ? 'Aktuell kein Restalkohol im Blut.'
+                            : `Voraussichtlich wieder bei 0,0 ‰ gegen ${myBacInfo.soberTimeString}`}
+                        </p>
+                      </div>
+                    </div>
+                    {onOpenBodyMetrics && (
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onOpenBodyMetrics();
+                        }}
+                        className="text-[10px] text-neon-cyan underline font-bold px-1 py-0.5 hover:text-white"
+                      >
+                        Körperdaten
+                      </button>
+                    )}
+                  </div>
+                )}
                 <p className="text-[10px] font-bold uppercase tracking-wider text-faint mb-2">
                   Getränke ({userDrinks.length})
                 </p>

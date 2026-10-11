@@ -1,6 +1,6 @@
 # AlcoholTracker 🍺⚡
 
-[![Version](https://img.shields.io/badge/version-2.1.1-cyan.svg)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-2.2.0-cyan.svg)](CHANGELOG.md)
 [![Changelog](https://img.shields.io/badge/changelog-Keep%20a%20Changelog-brightgreen.svg)](CHANGELOG.md)
 
 Eine moderne, party-basierte Progressive Web App (PWA) im **Neon Night Design**, um gemeinsam mit Freunden den Alkoholkonsum am Abend live zu tracken – inklusive Live-Ranking, Reaktions-Feed und automatischem **Spotify-Wrapped-Rückblick** am nächsten Morgen.

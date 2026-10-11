@@ -111,8 +111,7 @@ export const api = {
         ended_at,
         symbol_code,
         party_members (
-          profile_id,
-          joined_at,
+          *,
           profiles ( id, name, emoji, color, is_guest )
         )
       `)
@@ -121,6 +120,22 @@ export const api = {
 
     if (error) throw error;
     return data;
+  },
+
+  async updateMemberBac(partyId, profileId, currentBac) {
+    if (!partyId || !profileId) return;
+    try {
+      const { error } = await supabase
+        .from('party_members')
+        .update({ current_bac: currentBac })
+        .eq('party_id', partyId)
+        .eq('profile_id', profileId);
+      if (error) {
+        console.warn('BAC Sync Hinweis (Migration 004 evtl. noch nicht ausgeführt):', error.message);
+      }
+    } catch (err) {
+      console.warn('BAC Sync Fehler:', err);
+    }
   },
 
   async createParty({ name, emoji = '🎉', hostId, symbolCode = null }) {

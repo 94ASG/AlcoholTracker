@@ -25,6 +25,7 @@ export const useParty = (partyId) => {
       const memberList = (data.party_members || []).map((m) => ({
         ...m.profiles,
         joinedAt: m.joined_at,
+        currentBac: m.current_bac ? Number(m.current_bac) : null,
       }));
       setMembers(memberList);
 

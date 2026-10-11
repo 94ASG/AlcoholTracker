@@ -6,9 +6,11 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useProfile } from '../context/ProfileContext';
 import { api } from '../lib/api';
-import { ArrowLeft, Bell, Sparkles, Check, ChevronRight } from 'lucide-react';
+import { ArrowLeft, Bell, Sparkles, Check, ChevronRight, Lock } from 'lucide-react';
 import { APP_VERSION } from '../config/version';
 import { ChangelogModal } from '../components/common/ChangelogModal';
+import { getBodyProfile } from '../utils/bac';
+import { BodyMetricsSheet } from '../components/party/BodyMetricsSheet';
 
 const EMOJI_OPTIONS = ['😎', '🥳', '🤠', '🍺', '🍸', '🦊', '🐻', '🐼', '🦁', '🐸', '👨‍🦱', '👩‍🦱'];
 const COLOR_OPTIONS = ['#C6FF3D', '#FF2E93', '#8B5CF6', '#00F0FF', '#FFB800'];
@@ -25,6 +27,8 @@ export const Me = () => {
   const [savedSuccess, setSavedSuccess] = useState(false);
   const [pushStatus, setPushStatus] = useState('default');
   const [isChangelogOpen, setIsChangelogOpen] = useState(false);
+  const [bodyProfile, setBodyProfile] = useState(() => getBodyProfile());
+  const [isBodyMetricsOpen, setIsBodyMetricsOpen] = useState(false);
 
   useEffect(() => {
     if (profile?.id) {
@@ -202,6 +206,58 @@ export const Me = () => {
           )}
         </div>
 
+        {/* Promille-Radar (Körperdaten & Privatsphäre) */}
+        <div className="glass-card p-4 space-y-3">
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-neon-cyan/15 flex items-center justify-center text-neon-cyan flex-shrink-0">
+                <Lock className="w-5 h-5" />
+              </div>
+              <div>
+                <div className="flex items-center gap-1.5">
+                  <p className="text-xs font-bold text-white">Promille-Radar</p>
+                  <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-neon-cyan/15 text-neon-cyan uppercase font-mono">
+                    100% Privat
+                  </span>
+                </div>
+                <p className="text-[10px] text-dim">
+                  {bodyProfile ? (
+                    <>
+                      {bodyProfile.gender === 'female' ? '👩 Weiblich' : bodyProfile.gender === 'other' ? '🧑 Divers' : '👨 Männlich'} · {bodyProfile.age}J. · {bodyProfile.heightCm}cm · {bodyProfile.weightKg}kg
+                    </>
+                  ) : (
+                    'Berechne deinen geschätzten Alkoholpegel & Nüchternzeit'
+                  )}
+                </p>
+              </div>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => setIsBodyMetricsOpen(true)}
+              className="px-3 py-1.5 rounded-xl bg-neon-cyan/20 text-neon-cyan text-xs font-bold whitespace-nowrap active:scale-95 transition-all"
+            >
+              {bodyProfile ? 'Bearbeiten' : 'Einrichten'}
+            </button>
+          </div>
+
+          {bodyProfile && (
+            <div className="pt-2.5 border-t border-white/5 flex items-center justify-between text-[11px] text-dim">
+              <span className="flex items-center gap-1.5">
+                <span className={`w-2 h-2 rounded-full ${bodyProfile.shareInParty ? 'bg-neon-lime' : 'bg-white/20'}`} />
+                <span>In Party teilen: <strong className="text-white">{bodyProfile.shareInParty ? 'Aktiviert' : 'Deaktiviert (Privat)'}</strong></span>
+              </span>
+              <button
+                type="button"
+                onClick={() => setIsBodyMetricsOpen(true)}
+                className="text-neon-cyan underline font-bold"
+              >
+                Optionen
+              </button>
+            </div>
+          )}
+        </div>
+
         {/* Vergangene Partys (Historie) */}
         <div>
           <h3 className="display-font text-2xl text-white tracking-wide mb-3">
@@ -267,6 +323,13 @@ export const Me = () => {
       <ChangelogModal
         isOpen={isChangelogOpen}
         onClose={() => setIsChangelogOpen(false)}
+      />
+
+      {/* Promille-Radar (Körperdaten Bottom Sheet) */}
+      <BodyMetricsSheet
+        isOpen={isBodyMetricsOpen}
+        onClose={() => setIsBodyMetricsOpen(false)}
+        onSaved={(saved) => setBodyProfile(saved)}
       />
     </div>
   );

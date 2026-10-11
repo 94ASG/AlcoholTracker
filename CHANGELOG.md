@@ -14,6 +14,17 @@ und dieses Projekt hält sich an [Semantic Versioning](https://semver.org/lang/d
 
 ---
 
+## [2.2.0] - 2026-10-11
+### Hinzugefügt
+- **Promille-Radar (Watson-Formel 1980):** Wissenschaftliche Schätzung der Blutalkoholkonzentration (BAC) unter Berücksichtigung von biologischem Geschlecht, Alter, Größe und Gewicht zur Berechnung des realen Gesamtkörperwassers ($TBW$).
+- **Zeitbasierte Kinetik & Ausnüchterungs-Prognose:** Simulation mit 30-minütiger Resorptionsphase pro Drink und kontinuierlichem Leberabbau ($0.12\text{ ‰/h}$). Beim Aufklappen der eigenen Karte wird die genaue Uhrzeit für 0,0 ‰ angezeigt.
+- **Privacy by Design (100% Local Storage):** Biometrische Daten verlassen niemals das Smartphone und werden rein lokal im `localStorage` gespeichert.
+- **2-Stufen-Discovery:** Dezent einklappbare Box im Onboarding (`Setup.jsx`) sowie unaufdringlicher `[ + Promille 🔒 ]`-Chip direkt auf der eigenen Leaderboard-Karte.
+- **BodyMetricsSheet:** Schlankes Bottom-Sheet zur schnellen Angabe, Anpassung und rückstandslosen Löschung der Körperdaten.
+- **Freiwilliges Teilen:** Opt-in Toggle, um den errechneten Promillewert (und nur diesen) mit Partyfreunden zu teilen.
+
+---
+
 ## [2.1.1] - 2026-10-11
 ### Hinzugefügt
 - **Fluid Club Aurora:** Volumefüllende, organische Neon-Lichtwellen (Cyan, Lime, Hot-Pink, Violett) über 100% der Bildschirmbreite und -höhe im oberen Header-Bereich.
@@ -106,7 +117,8 @@ und dieses Projekt hält sich an [Semantic Versioning](https://semver.org/lang/d
 - **Berechnungen:** Berechnung von Gramm Reinalkohol und Biervolumen (Liter).
 - **Profil & Freunde:** Einfache Übersicht über eigene Getränke und Freunde.
 
-[Unreleased]: https://github.com/94ASG/AlcoholTracker/compare/v2.1.1...HEAD
+[Unreleased]: https://github.com/94ASG/AlcoholTracker/compare/v2.2.0...HEAD
+[2.2.0]: https://github.com/94ASG/AlcoholTracker/compare/v2.1.1...v2.2.0
 [2.1.1]: https://github.com/94ASG/AlcoholTracker/compare/v2.1.0...v2.1.1
 [2.1.0]: https://github.com/94ASG/AlcoholTracker/compare/v2.0.2...v2.1.0
 [2.0.2]: https://github.com/94ASG/AlcoholTracker/compare/v2.0.1...v2.0.2

@@ -4,6 +4,7 @@
 
 import React, { useState } from 'react';
 import { useProfile } from '../context/ProfileContext';
+import { saveBodyProfile } from '../utils/bac';
 
 const EMOJI_OPTIONS = [
   '😎', '🥳', '🤠', '🍺', '🍸',
@@ -26,6 +27,13 @@ export const Setup = ({ onDone }) => {
   const [color, setColor] = useState('#C6FF3D');
   const [submitting, setSubmitting] = useState(false);
 
+  // Optionale Promille-Schätzung
+  const [showPromilleSetup, setShowPromilleSetup] = useState(false);
+  const [gender, setGender] = useState('male');
+  const [age, setAge] = useState(25);
+  const [heightCm, setHeightCm] = useState(175);
+  const [weightKg, setWeightKg] = useState(70);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!name.trim() || submitting) return;
@@ -36,6 +44,17 @@ export const Setup = ({ onDone }) => {
         emoji,
         color,
       });
+
+      if (showPromilleSetup && weightKg) {
+        saveBodyProfile({
+          gender,
+          age: Number(age) || 25,
+          heightCm: Number(heightCm) || 175,
+          weightKg: Number(weightKg) || 70,
+          shareInParty: false,
+        });
+      }
+
       if (onDone) onDone();
     } catch (err) {
       alert('Fehler beim Speichern: ' + err.message);
@@ -132,6 +151,106 @@ export const Setup = ({ onDone }) => {
               />
             ))}
           </div>
+        </div>
+
+        {/* Optionale Promille-Schätzung (Sanfter Nudge) */}
+        <div className="rounded-2xl border border-white/5 bg-surface-light overflow-hidden transition-all">
+          <button
+            type="button"
+            onClick={() => setShowPromilleSetup(!showPromilleSetup)}
+            className="w-full p-3.5 flex items-center justify-between text-left hover:bg-white/[0.02] transition-colors"
+          >
+            <div className="flex items-center gap-2.5">
+              <span className="text-base">🔒</span>
+              <div>
+                <p className="text-xs font-bold text-white flex items-center gap-1.5">
+                  <span>Promille-Schätzung</span>
+                  <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-neon-cyan/15 text-neon-cyan font-bold">
+                    Optional
+                  </span>
+                </p>
+                <p className="text-[10px] text-faint">
+                  100% privat & lokal auf deinem Handy
+                </p>
+              </div>
+            </div>
+            <span className="text-xs font-bold text-neon-cyan">
+              {showPromilleSetup ? 'Einklappen' : 'Einrichten'}
+            </span>
+          </button>
+
+          {showPromilleSetup && (
+            <div className="px-3.5 pb-3.5 pt-1 border-t border-white/5 space-y-3">
+              <div>
+                <label className="block text-[10px] font-bold uppercase tracking-wider text-faint mb-1">
+                  Biologisches Geschlecht
+                </label>
+                <div className="grid grid-cols-3 gap-1.5">
+                  {[
+                    { id: 'male', label: 'Männlich', icon: '👨' },
+                    { id: 'female', label: 'Weiblich', icon: '👩' },
+                    { id: 'other', label: 'Divers', icon: '🧑' },
+                  ].map((g) => (
+                    <button
+                      key={g.id}
+                      type="button"
+                      onClick={() => setGender(g.id)}
+                      className={`py-2 px-1 rounded-xl text-xs font-bold border transition-all flex items-center justify-center gap-1 ${
+                        gender === g.id
+                          ? 'border-neon-cyan bg-neon-cyan/20 text-white'
+                          : 'border-white/5 bg-black/20 text-dim'
+                      }`}
+                    >
+                      <span>{g.icon}</span>
+                      <span>{g.label}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="grid grid-cols-3 gap-2">
+                <div>
+                  <label className="block text-[10px] font-bold uppercase tracking-wider text-faint mb-1">
+                    Alter
+                  </label>
+                  <input
+                    type="number"
+                    min="16"
+                    max="99"
+                    value={age}
+                    onChange={(e) => setAge(e.target.value)}
+                    className="w-full p-2 bg-black/20 border border-white/10 rounded-xl text-white font-bold text-xs text-center focus:outline-none focus:border-neon-cyan"
+                  />
+                </div>
+                <div>
+                  <label className="block text-[10px] font-bold uppercase tracking-wider text-faint mb-1">
+                    Größe (cm)
+                  </label>
+                  <input
+                    type="number"
+                    min="120"
+                    max="230"
+                    value={heightCm}
+                    onChange={(e) => setHeightCm(e.target.value)}
+                    className="w-full p-2 bg-black/20 border border-white/10 rounded-xl text-white font-bold text-xs text-center focus:outline-none focus:border-neon-cyan"
+                  />
+                </div>
+                <div>
+                  <label className="block text-[10px] font-bold uppercase tracking-wider text-faint mb-1">
+                    Gewicht (kg)
+                  </label>
+                  <input
+                    type="number"
+                    min="35"
+                    max="220"
+                    value={weightKg}
+                    onChange={(e) => setWeightKg(e.target.value)}
+                    className="w-full p-2 bg-black/20 border border-white/10 rounded-xl text-white font-bold text-xs text-center focus:outline-none focus:border-neon-cyan"
+                  />
+                </div>
+              </div>
+            </div>
+          )}
         </div>
 
         <button
