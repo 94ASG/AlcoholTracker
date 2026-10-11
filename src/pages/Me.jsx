@@ -7,6 +7,8 @@ import { useNavigate } from 'react-router-dom';
 import { useProfile } from '../context/ProfileContext';
 import { api } from '../lib/api';
 import { ArrowLeft, Bell, Sparkles, Check, ChevronRight } from 'lucide-react';
+import { APP_VERSION } from '../config/version';
+import { ChangelogModal } from '../components/common/ChangelogModal';
 
 const EMOJI_OPTIONS = ['😎', '🥳', '🤠', '🍺', '🍸', '🦊', '🐻', '🐼', '🦁', '🐸', '👨‍🦱', '👩‍🦱'];
 const COLOR_OPTIONS = ['#C6FF3D', '#FF2E93', '#8B5CF6', '#00F0FF', '#FFB800'];
@@ -22,6 +24,7 @@ export const Me = () => {
   const [saving, setSaving] = useState(false);
   const [savedSuccess, setSavedSuccess] = useState(false);
   const [pushStatus, setPushStatus] = useState('default');
+  const [isChangelogOpen, setIsChangelogOpen] = useState(false);
 
   useEffect(() => {
     if (profile?.id) {
@@ -243,7 +246,28 @@ export const Me = () => {
             </div>
           )}
         </div>
+
+        {/* Versionsinfo & Changelog Button */}
+        <div className="pt-6 pb-2 text-center space-y-2.5 border-t border-white/5">
+          <p className="text-[11px] text-faint font-mono">
+            AlcoholTracker <span className="text-dim font-bold">v{APP_VERSION}</span>
+          </p>
+          <button
+            type="button"
+            onClick={() => setIsChangelogOpen(true)}
+            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-surface-light border border-white/5 text-xs font-bold text-dim hover:text-white transition-all active:scale-95 cursor-pointer"
+          >
+            <Sparkles className="w-3.5 h-3.5 text-neon-cyan" />
+            <span>Was ist neu? (Changelog)</span>
+          </button>
+        </div>
       </main>
+
+      {/* Changelog Modal */}
+      <ChangelogModal
+        isOpen={isChangelogOpen}
+        onClose={() => setIsChangelogOpen(false)}
+      />
     </div>
   );
 };

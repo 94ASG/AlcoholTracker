@@ -1,14 +1,17 @@
 {
   "name": "alcoholtracker",
   "private": true,
-  "version": "0.0.0",
+  "version": "2.1.1",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
     "lint": "oxlint",
     "test": "vitest run",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "release:patch": "npm version patch",
+    "release:minor": "npm version minor",
+    "release:major": "npm version major"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.112.4",
