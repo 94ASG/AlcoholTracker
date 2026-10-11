@@ -219,7 +219,7 @@ export const Party = () => {
   return (
     <div className="app-container !pt-0 pb-32">
       {/* Top Header */}
-      <header className="sticky top-0 z-30 bg-bg/70 backdrop-blur-md border-b border-white/[0.08] px-5 pb-3 pt-[calc(env(safe-area-inset-top,0px)+0.75rem)] relative overflow-hidden">
+      <header className="sticky top-0 z-30 bg-bg/65 backdrop-blur-md border-b border-white/[0.08] px-5 pb-3.5 pt-[calc(env(safe-area-inset-top,0px)+2.375rem)] relative overflow-hidden">
         {/* Fluid Club Aurora Fx */}
         <PartyHeaderFx />
 
@@ -232,11 +232,11 @@ export const Party = () => {
               <ArrowLeft className="w-5 h-5" />
             </button>
             <div>
-              <h1 className="font-extrabold text-white text-base leading-tight flex items-center gap-1.5">
+              <h1 className="font-extrabold text-white text-base leading-tight flex items-center gap-1.5 drop-shadow-sm">
                 <span>{party.emoji}</span>
                 <span className="truncate max-w-[150px] xs:max-w-[180px]">{party.name}</span>
               </h1>
-              <p className="text-[11px] text-faint font-mono">
+              <p className="text-[11px] text-faint font-mono drop-shadow-sm">
                 {members.length} {members.length === 1 ? 'Person' : 'Personen'} ·{' '}
                 {isEnded ? (
                   <span className="text-neon-pink font-bold">Party beendet</span>
